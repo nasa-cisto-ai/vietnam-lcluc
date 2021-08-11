@@ -23,10 +23,10 @@ output_bands:
   - Blue
   - Green
   - Red
-  - NIR
-  - BAI
-  - NDVI
-  - NDWI
+#  - NIR
+#  - BAI
+#  - NDVI
+#  - NDWI
 
 #-----------------------------------------------------------------------
 # Model Parameters
