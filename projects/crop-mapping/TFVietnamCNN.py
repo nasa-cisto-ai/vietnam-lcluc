@@ -291,7 +291,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         # Scale images
         self.scaler = MinMaxScaler()
         images = self.scaler.fit_transform(images.reshape(-1, images.shape[-1])).reshape(images.shape)
-        images = self.preprocess_input(images)  # Preprocess based on the pretrained backbone...
+        #images = self.preprocess_input(images)  # Preprocess based on the pretrained backbone...
         logging.info(f'Images shape {images.shape}, {images.mean()}, {images.max()}')
 
         # normalize data, prepare for training
