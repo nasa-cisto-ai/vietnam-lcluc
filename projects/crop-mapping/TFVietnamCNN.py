@@ -22,7 +22,7 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
 from unet import unet_batchnorm, cloud_net
 from smooth_tiled_predictions import predict_img_with_smooth_windowing
 from sklearn.utils.class_weight import compute_class_weight
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 from ToolBelt import ConfigYAML, ToolBelt
 
@@ -289,7 +289,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         self.preprocess_input = sm.get_preprocessing(self.BACKBONE)
 
         # Scale images
-        self.scaler = MinMaxScaler()
+        self.scaler = MinMaxScaler() # StandardScaler()
         images = self.scaler.fit_transform(images.reshape(-1, images.shape[-1])).reshape(images.shape)
         #images = self.preprocess_input(images)  # Preprocess based on the pretrained backbone...
         logging.info(f'Images shape {images.shape}, {images.mean()}, {images.max()}')
@@ -399,7 +399,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             # self.loss = ToolBelt.dice_loss
             # self.loss = sm.losses.DiceLoss(class_weights=self.weights) + \
             #    (1 * sm.losses.CategoricalFocalLoss())
-            self.loss = sm.losses.DiceLoss(class_weights=self.weights)
+            self.loss = sm.losses.DiceLoss()#class_weights=self.weights)
             #self.loss = sm.losses.categorical_focal_jaccard_loss
 
             model.compile(
