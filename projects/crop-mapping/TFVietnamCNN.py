@@ -334,8 +334,9 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
 
             # loss
             # self.loss = ToolBelt.dice_loss
-            self.loss = sm.losses.DiceLoss(class_weights=self.weights) + \
-                (1 * sm.losses.CategoricalFocalLoss())
+            # self.loss = sm.losses.DiceLoss(class_weights=self.weights) + \
+            #    (1 * sm.losses.CategoricalFocalLoss())
+            self.loss = sm.losses.DiceLoss(class_weights=self.weights)
 
             model.compile(
                 optimizer,
