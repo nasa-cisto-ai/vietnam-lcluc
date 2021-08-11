@@ -1,0 +1,53 @@
+#-----------------------------------------------------------------------
+# Configuration File for Vietnam Crop Mapping
+#-----------------------------------------------------------------------
+experiment_name: '2021-08-11'
+
+#-----------------------------------------------------------------------
+# General Parameters
+#-----------------------------------------------------------------------
+data_csv: 'config/VietnamCropDataset.csv'
+data_output_dir: '/lscratch/jacaraba/vietnam-lcluc/crop-mapping'
+
+input_bands:
+  - Blue
+  - Green
+  - Red
+  - NIR
+  - BAI
+  - NDVI
+  - NDWI
+output_bands:
+  - Blue
+  - Green
+  - Red
+  - NIR
+  - BAI
+  - NDVI
+  - NDWI
+
+#-----------------------------------------------------------------------
+# Model Parameters
+#-----------------------------------------------------------------------
+seed: 22
+tile_size: 256
+n_classes: 7
+test_size: 0.20
+batch_size: 16
+max_epochs: 6000
+initial_epoch: 0
+
+#-----------------------------------------------------------------------
+# System Acceleration Parameters
+#-----------------------------------------------------------------------
+cuda_devices: 0,1,2,3
+
+#-----------------------------------------------------------------------
+# System Acceleration Parameters
+#-----------------------------------------------------------------------
+# Tiles to process
+# (ai-lcluc) [jacaraba@gpu021 data]$ ls /att/nobackup/mwooten3/Senegal_LCLUC/VHR/priority-tiles/
+# Aki-tiles-ETZ  eCasamance_stereo  kassassa_M1BS-8band  Konrad-tiles
+# model_filename: '/home/jacaraba/senegal-lcluc/projects/cloud-mask/data/2021-08-10c-18.h5'
+# data_predict: '/att/nobackup/mwooten3/Senegal_LCLUC/VHR/priority-tiles/kassassa_M1BS-8band/*.tif'
+inference_output_dir: '/att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_LCLUC'

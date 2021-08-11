@@ -179,17 +179,17 @@ def _windowed_subdivs(padded_img, window_size, subdivisions, nb_classes, pred_fu
 
     # Here, `gc.collect()` clears RAM between operations.
     # It should run faster if they are removed, if enough memory is available.
-    gc.collect()
+    #gc.collect()
     subdivs = np.array(subdivs)
-    gc.collect()
+    #gc.collect()
     a, b, c, d, e = subdivs.shape
     subdivs = subdivs.reshape(a * b, c, d, e)
-    gc.collect()
+    #gc.collect()
 
     subdivs = pred_func(subdivs)
-    gc.collect()
+    #gc.collect()
     subdivs = np.array([patch * WINDOW_SPLINE_2D for patch in subdivs])
-    gc.collect()
+    #gc.collect()
 
     # Such 5D array:
     subdivs = subdivs.reshape(a, b, c, d, nb_classes)
