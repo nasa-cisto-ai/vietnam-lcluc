@@ -11,6 +11,15 @@ Data directory:
 Training and Labels: 
 Ouput directory: 
 
+/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/labeled_training/Keelin05_20160318__training.tif
+/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/7-band/Keelin05_20160318_data-7band.tif
+ 
+/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/labeled_training/Keelin13_20160318__training.tif
+/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/7-band/Keelin13_20160318_data-7band.tif
+ 
+/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/labeled_training/Keelin23_20110201__training.tif
+/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/7-band/Keelin23_20110201_data-7band.tif
+
 # Methodology
 
 # References
