@@ -21,6 +21,7 @@ from sklearn.model_selection import train_test_split
 from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
 from unet import unet_batchnorm, cloud_net
 from smooth_tiled_predictions import predict_img_with_smooth_windowing
+from sklearn.utils.class_weight import compute_class_weight
 
 from ToolBelt import ConfigYAML, ToolBelt
 
@@ -247,6 +248,13 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         images = self._contrastStretch(images)
         images = self._standardize(images)
 
+        self.weights = compute_class_weight(
+            'balanced', 
+            np.unique(np.ravel(labels,order='C')), 
+            np.ravel(labels,order='C')
+        )
+        logging.info(f'Calculated weights: {self.weights}')
+
         # set labels to categorical
         labels = tf.keras.utils.to_categorical(
             labels, num_classes=self.n_classes, dtype='float32'
@@ -324,9 +332,14 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             optimizer = tf.keras.optimizers.Adam(lr=0.0001)
             optimizer = tf.keras.mixed_precision.LossScaleOptimizer(optimizer)
 
+            # loss
+            # self.loss = ToolBelt.dice_loss
+            self.loss = sm.losses.DiceLoss(class_weights=self.weights) + \
+                (1 * sm.losses.CategoricalFocalLoss())
+
             model.compile(
                 optimizer,
-                loss=ToolBelt.dice_loss,
+                loss=self.loss,
                 # ToolBelt.bcedice_loss,
                 #sm.losses.DiceLoss(), #'binary_crossentropy', #sm.losses.DiceLoss(),
                 metrics=[sm.metrics.iou_score, 'accuracy'],
