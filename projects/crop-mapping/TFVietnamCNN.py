@@ -376,20 +376,20 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             #    activation='sigmoid'
             #)
 
-            #model = unet_batchnorm(
-            #    nclass=self.n_classes,
-            #    input_size=(self.tile_size, self.tile_size, len(self.output_bands)),
-            #    maps=[64, 128, 256, 512, 1024]
-            #)
+            model = unet_batchnorm(
+                nclass=self.n_classes,
+                input_size=(self.tile_size, self.tile_size, len(self.output_bands)),
+                maps=[64, 128, 256, 512, 1024]
+            )
 
             #model = cloud_net(
             #    nclass=self.n_classes,
             #    input_size=(self.tile_size, self.tile_size, len(self.output_bands))
             #)
 
-            model = sm.Unet(self.BACKBONE, encoder_weights=None, 
-                            input_shape=(self.tile_size, self.tile_size, len(self.output_bands)),
-                            classes=self.n_classes, activation='softmax')
+            #model = sm.Unet(self.BACKBONE, encoder_weights=None, 
+            #                input_shape=(self.tile_size, self.tile_size, len(self.output_bands)),
+            #                classes=self.n_classes, activation='softmax')
 
             # enabling mixed precision to avoid underflow
             optimizer = tf.keras.optimizers.Adam(lr=0.0001)
