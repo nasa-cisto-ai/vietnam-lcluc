@@ -387,7 +387,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             #    input_size=(self.tile_size, self.tile_size, len(self.output_bands))
             #)
 
-            model = sm.Unet(self.BACKBONE, encoder_weights='imagenet', 
+            model = sm.Unet(self.BACKBONE, encoder_weights=None, 
                             input_shape=(self.tile_size, self.tile_size, len(self.output_bands)),
                             classes=self.n_classes, activation='softmax')
 
