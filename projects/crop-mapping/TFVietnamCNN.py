@@ -22,6 +22,7 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
 from unet import unet_batchnorm, cloud_net
 from smooth_tiled_predictions import predict_img_with_smooth_windowing
 from sklearn.utils.class_weight import compute_class_weight
+from sklearn.preprocessing import MinMaxScaler
 
 from ToolBelt import ConfigYAML, ToolBelt
 
@@ -231,6 +232,46 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         )
         return [checkpoint, early_stop, log_csv, tensorboard]
 
+    # Define a function to perform additional preprocessing after datagen.
+    # For example, scale images, convert masks to categorical, etc. 
+    def _preprocess_data(self, img, mask):
+        # Scale images
+        img = self.scaler.fit_transform(img.reshape(-1, img.shape[-1])).reshape(img.shape)
+        img = self.preprocess_input(img)  # Preprocess based on the pretrained backbone...
+        # Convert mask to one-hot
+        mask = tf.keras.utils.to_categorical(mask, self.n_classes)
+        return (img,mask)
+
+    def _trainGenerator(self, train_img_path, train_mask_path):
+        
+        img_data_gen_args = dict(
+            horizontal_flip=True,
+            vertical_flip=True,
+            fill_mode='reflect'
+        )
+        
+        image_datagen = ImageDataGenerator(**img_data_gen_args)
+        mask_datagen = ImageDataGenerator(**img_data_gen_args)
+        
+        image_generator = image_datagen.flow_from_directory(
+            train_img_path,
+            class_mode = None,
+            batch_size = self.batch_size,
+            seed = self.seed)
+        
+        mask_generator = mask_datagen.flow_from_directory(
+            train_mask_path,
+            class_mode = None,
+            color_mode = 'grayscale',
+            batch_size = self.batch_size,
+            seed = self.seed)
+        
+        train_generator = zip(image_generator, mask_generator)
+        
+        for (img, mask) in train_generator:
+            img, mask = self._preprocess_data(img, mask, self.n_classes)
+            yield (img, mask)
+
     # --------------------------------------------------------------------------
     # Training Methods
     # --------------------------------------------------------------------------
@@ -242,11 +283,29 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         # lets get the data into memory (since it fits)
         images = self._getDataFromDir(self.imagesDir)
         labels = self._getDataFromDir(self.labelsDir)
+        
+        #Use this to preprocess input for transfer learning
+        self.BACKBONE = 'resnet34'
+        self.preprocess_input = sm.get_preprocessing(self.BACKBONE)
+
+        # Scale images
+        self.scaler = MinMaxScaler()
+        images = self.scaler.fit_transform(images.reshape(-1, images.shape[-1])).reshape(images.shape)
+        images = self.preprocess_input(images)  # Preprocess based on the pretrained backbone...
+        logging.info(f'Images shape {images.shape}, {images.mean()}, {images.max()}')
 
         # normalize data, prepare for training
         # images = tf.keras.utils.normalize(images, axis=-1, order=2)
-        images = self._contrastStretch(images)
-        images = self._standardize(images)
+        # images = self._contrastStretch(images)
+        # images = self._standardize(images)
+
+        #train_img_path = "data/data_for_keras_aug/train_images/"
+        #train_mask_path = "data/data_for_keras_aug/train_masks/"
+        #train_img_gen = self._trainGenerator(train_img_path, train_mask_path)
+
+        #val_img_path = "data/data_for_keras_aug/val_images/"
+        #val_mask_path = "data/data_for_keras_aug/val_masks/"
+        #val_img_gen = self._trainGenerator(val_img_path, val_mask_path)
 
         self.weights = compute_class_weight(
             'balanced', 
@@ -323,10 +382,14 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             #    maps=[64, 128, 256, 512, 1024]
             #)
 
-            model = cloud_net(
-                nclass=self.n_classes,
-                input_size=(self.tile_size, self.tile_size, len(self.output_bands))
-            )
+            #model = cloud_net(
+            #    nclass=self.n_classes,
+            #    input_size=(self.tile_size, self.tile_size, len(self.output_bands))
+            #)
+
+            model = sm.Unet(self.BACKBONE, encoder_weights='imagenet', 
+                            input_shape=(self.tile_size, self.tile_size, len(self.output_bands)),
+                            classes=self.n_classes, activation='softmax')
 
             # enabling mixed precision to avoid underflow
             optimizer = tf.keras.optimizers.Adam(lr=0.0001)
@@ -337,17 +400,17 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             # self.loss = sm.losses.DiceLoss(class_weights=self.weights) + \
             #    (1 * sm.losses.CategoricalFocalLoss())
             # self.loss = sm.losses.DiceLoss(class_weights=self.weights)
-
+            self.loss = sm.losses.categorical_focal_jaccard_loss
 
             model.compile(
                 optimizer,
-                loss='categorical_crossentropy', #self.loss,
+                loss=self.loss,
                 # ToolBelt.bcedice_loss,
                 #sm.losses.DiceLoss(), #'binary_crossentropy', #sm.losses.DiceLoss(),
                 metrics=[sm.metrics.iou_score, 'accuracy'],
             )
         model.summary()
-        
+
         # fit model
         model_history = model.fit(
             dataset['train'],
