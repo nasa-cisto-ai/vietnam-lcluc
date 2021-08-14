@@ -19,6 +19,7 @@ from unet import unet_batchnorm, cloud_net
 from smooth_tiled_predictions import predict_img_with_smooth_windowing
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+import tensorflow_addons as tfa
 
 from ToolBelt import ConfigYAML, ToolBelt
 
@@ -300,7 +301,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
 
         # normalize data, prepare for training
         # images = tf.keras.utils.normalize(images, axis=-1, order=2)
-        images = self._contrastStretch(images)
+        # images = self._contrastStretch(images)
         images = self._standardize(images)
 
         logging.info(f'Images {images.shape}, {images.mean()}, {images.max()}')
@@ -406,7 +407,14 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             # classes=self.n_classes, activation='softmax')
 
             # enabling mixed precision to avoid underflow
-            optimizer = tf.keras.optimizers.Adam(lr=0.0001)
+            # optimizer = tf.keras.optimizers.Adam(lr=0.0001)
+            optimizer = tfa.optimizers.RectifiedAdam(
+                lr=1e-3,
+                total_steps=10000,
+                warmup_proportion=0.1,
+                min_lr=1e-5,
+            )
+
             optimizer = tf.keras.mixed_precision.LossScaleOptimizer(optimizer)
 
             # loss
