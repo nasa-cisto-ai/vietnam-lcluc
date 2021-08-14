@@ -3,7 +3,9 @@
 #-----------------------------------------------------------------------
 #experiment_name: '2021-08-11' - cloudnet with dice loss
 # experiment_name: '2021-08-11b' - crossentropy better, not great
-experiment_name: '2021-08-11c'
+# experiment_name: '2021-08-11c' - normal std, looks decent
+# contrast stretch plus std
+experiment_name: '2021-08-11d'
 
 #-----------------------------------------------------------------------
 # General Parameters

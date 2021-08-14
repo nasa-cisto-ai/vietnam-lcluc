@@ -300,7 +300,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
 
         # normalize data, prepare for training
         # images = tf.keras.utils.normalize(images, axis=-1, order=2)
-        # images = self._contrastStretch(images)
+        images = self._contrastStretch(images)
         images = self._standardize(images)
 
         logging.info(f'Images {images.shape}, {images.mean()}, {images.max()}')
