@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import yaml
-import sys
-import math
-import time
 import glob
 import logging
 
@@ -31,10 +27,11 @@ __email__ = "jordan.a.caraballo-vega@nasa.gov"
 __status__ = "Production"
 
 # Some global elements for the general pipeline
-CHUNKS = {'band': 1, 'x': 2048, 'y': 2048}
-BUFFER_SIZE = 1000
 AUTOTUNE = tf.data.experimental.AUTOTUNE
+BUFFER_SIZE = 1000
+CHUNKS = {'band': 1, 'x': 2048, 'y': 2048}
 sm.set_framework('tf.keras')
+
 
 # -----------------------------------------------------------------------------
 # class ConfigYAML
@@ -49,7 +46,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         ConfigYAML.__init__(self, configFile)  # explicit calls without super
         self.strategy = self._setup()  # setup GPU configurations
         self._createOutputDirs()  # create output directories for local storage
-    
+
     # --------------------------------------------------------------------------
     # IO Methods
     # --------------------------------------------------------------------------
@@ -58,12 +55,14 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         Extract data CSV files to extract tiles from (data and golden tiles)
         """
         # get data CSV file
-        assert os.path.exists(self.data_csv), f'File {self.data_csv} not found.'
+        assert os.path.exists(self.data_csv), f'File {self.data_csv} not found'
         self.dataDF = pd.read_csv(self.data_csv)
 
     @ToolBelt.timeit
     def _getDataFromDir(self, dataDir: str, ext: str = 'tif'):
-        # np.array(list(map(imread, data_filenames))), elegant, but ordered?
+        """
+        Read files from given directory.
+        """
         data_filenames = glob.glob(f'{dataDir}/*.{ext}')
         imagesList = [imread(imageName) for imageName in data_filenames]
         return np.array(imagesList)
@@ -122,15 +121,8 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         Preprocessing function.
         """
         logging.info('Starting Preprocess Step...')
-
-        # 2.a.1. Reading data and golden tiles CSV file
-        self._getDataFrames()
-
-        # 2.a.2. For each file, generate dataset
-        list(map(self._preprocessRaster, self.dataDF.index))
-        # for index in self.dataDF.index:
-        #    self._preprocessRaster(index=index)
-        return
+        self._getDataFrames()  # 2.a.1. Reading data and golden tiles CSV file
+        return list(map(self._preprocessRaster, self.dataDF.index))
 
     @ToolBelt.timeit
     def _modifyBands(self, img, drop_bands=[]):
@@ -157,18 +149,27 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
 
         # Get filename for output purposes
         fileName = self.dataDF['data'][index].split('/')[-1]
-        
-        # Read imagery from disk
-        img = xr.open_rasterio(self.dataDF['data'][index], chunks=CHUNKS).load()
-        mask = xr.open_rasterio(self.dataDF['label'][index], chunks=CHUNKS).values
-        logging.info(f'File #{index+1}: {fileName}, img:{img.shape}, label:{mask.shape}')
 
-        img = self._modifyBands(img)  # removing bands if necessary
-        
+        # Read imagery from disk
+        img = xr.open_rasterio(
+            self.dataDF['data'][index], chunks=CHUNKS
+        ).load()
+        mask = xr.open_rasterio(
+            self.dataDF['label'][index], chunks=CHUNKS
+        ).values
+        logging.info(
+            f'File #{index+1}: {fileName}, img:{img.shape}, label:{mask.shape}'
+        )
+
+        # removing bands if necessary
+        img = self._modifyBands(img)
+
         # --------------------------------------------------------------------------
         # Unique for this project end
         # --------------------------------------------------------------------------
+
         mask[mask == 15] = 5  # merging classes if necessary
+
         # --------------------------------------------------------------------------
         # Unique for this project start
         # --------------------------------------------------------------------------
@@ -199,7 +200,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
 
         # save to disk
         for id in range(imgPatches.shape[0]):
-            
+
             imsave(
                 os.path.join(self.imagesDir, f'{fileName[:-4]}_{id}.tif'),
                 imgPatches[id, :, :, :], planarconfig='contig'
@@ -222,7 +223,8 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             self.modelDir, f'{self.experiment_name}'+'-{epoch:02d}.h5'
         )
         checkpoint = ModelCheckpoint(
-            modelPath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max'
+            modelPath, monitor='val_accuracy', verbose=1,
+            save_best_only=True, mode='max'
         )
         early_stop = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
         csvPath = os.path.join(self.modelDir, f'{self.experiment_name}.csv')
@@ -233,44 +235,45 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         return [checkpoint, early_stop, log_csv, tensorboard]
 
     # Define a function to perform additional preprocessing after datagen.
-    # For example, scale images, convert masks to categorical, etc. 
-    def _preprocess_data(self, img, mask):
-        # Scale images
-        img = self.scaler.fit_transform(img.reshape(-1, img.shape[-1])).reshape(img.shape)
-        img = self.preprocess_input(img)  # Preprocess based on the pretrained backbone...
-        # Convert mask to one-hot
-        mask = tf.keras.utils.to_categorical(mask, self.n_classes)
-        return (img,mask)
+    # For example, scale images, convert masks to categorical, etc.
+    # def _preprocess_data(self, img, mask):
+    #    # Scale images
+    #    img = self.scaler.fit_transform(
+    #        img.reshape(-1, img.shape[-1])
+    #    ).reshape(img.shape)
+    #    img = self.preprocess_input(img)  # Preprocess based on the backbone
+    #    # Convert mask to one-hot
+    #    mask = tf.keras.utils.to_categorical(mask, self.n_classes)
+    #    return (img, mask)
 
-    def _trainGenerator(self, train_img_path, train_mask_path):
-        
-        img_data_gen_args = dict(
-            horizontal_flip=True,
-            vertical_flip=True,
-            fill_mode='reflect'
-        )
-        
-        image_datagen = ImageDataGenerator(**img_data_gen_args)
-        mask_datagen = ImageDataGenerator(**img_data_gen_args)
-        
-        image_generator = image_datagen.flow_from_directory(
-            train_img_path,
-            class_mode = None,
-            batch_size = self.batch_size,
-            seed = self.seed)
-        
-        mask_generator = mask_datagen.flow_from_directory(
-            train_mask_path,
-            class_mode = None,
-            color_mode = 'grayscale',
-            batch_size = self.batch_size,
-            seed = self.seed)
-        
-        train_generator = zip(image_generator, mask_generator)
-        
-        for (img, mask) in train_generator:
-            img, mask = self._preprocess_data(img, mask, self.n_classes)
-            yield (img, mask)
+    # def _trainGenerator(self, train_img_path, train_mask_path):
+    #    img_data_gen_args = dict(
+    #        horizontal_flip=True,
+    #        vertical_flip=True,
+    #        fill_mode='reflect'
+    #    )
+    #
+    #    # image_datagen = ImageDataGenerator(**img_data_gen_args)
+    #    # mask_datagen = ImageDataGenerator(**img_data_gen_args)
+    #    # image_generator = image_datagen.flow_from_directory(
+    #    #    train_img_path,
+    #    #    class_mode=None,
+    #    #    batch_size=self.batch_size,
+    #    #    seed=self.seed
+    #    # )
+    #
+    #    # mask_generator = mask_datagen.flow_from_directory(
+    #    #    train_mask_path,
+    #    #    class_mode=None,
+    #    #    color_mode='grayscale',
+    #    #    batch_size=self.batch_size,
+    #    #    seed=self.seed
+    #    # )
+    #
+    #    # train_generator = zip(image_generator, mask_generator)
+    #    # for (img, mask) in train_generator:
+    #    #    img, mask = self._preprocess_data(img, mask, self.n_classes)
+    #    #    yield (img, mask)
 
     # --------------------------------------------------------------------------
     # Training Methods
@@ -283,34 +286,37 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         # lets get the data into memory (since it fits)
         images = self._getDataFromDir(self.imagesDir)
         labels = self._getDataFromDir(self.labelsDir)
-        
-        #Use this to preprocess input for transfer learning
-        self.BACKBONE = 'resnet34'
-        self.preprocess_input = sm.get_preprocessing(self.BACKBONE)
+
+        # use this to preprocess input for transfer learning
+        # self.BACKBONE = 'resnet34'
+        # self.preprocess_input = sm.get_preprocessing(self.BACKBONE)
 
         # Scale images
-        self.scaler = MinMaxScaler() # StandardScaler()
-        images = self.scaler.fit_transform(images.reshape(-1, images.shape[-1])).reshape(images.shape)
-        #images = self.preprocess_input(images)  # Preprocess based on the pretrained backbone...
-        logging.info(f'Images shape {images.shape}, {images.mean()}, {images.max()}')
+        # self.scaler = MinMaxScaler()  # StandardScaler()
+        # images = self.scaler.fit_transform(
+        #    images.reshape(-1, images.shape[-1])
+        # ).reshape(images.shape)
+        # images = self.preprocess_input(images)
 
         # normalize data, prepare for training
         # images = tf.keras.utils.normalize(images, axis=-1, order=2)
         # images = self._contrastStretch(images)
-        # images = self._standardize(images)
+        images = self._standardize(images)
 
-        #train_img_path = "data/data_for_keras_aug/train_images/"
-        #train_mask_path = "data/data_for_keras_aug/train_masks/"
-        #train_img_gen = self._trainGenerator(train_img_path, train_mask_path)
+        logging.info(f'Images {images.shape}, {images.mean()}, {images.max()}')
 
-        #val_img_path = "data/data_for_keras_aug/val_images/"
-        #val_mask_path = "data/data_for_keras_aug/val_masks/"
-        #val_img_gen = self._trainGenerator(val_img_path, val_mask_path)
+        # train_img_path = "data/data_for_keras_aug/train_images/"
+        # train_mask_path = "data/data_for_keras_aug/train_masks/"
+        # train_img_gen = self._trainGenerator(train_img_path, train_mask_path)
+
+        # val_img_path = "data/data_for_keras_aug/val_images/"
+        # val_mask_path = "data/data_for_keras_aug/val_masks/"
+        # val_img_gen = self._trainGenerator(val_img_path, val_mask_path)
 
         self.weights = compute_class_weight(
-            'balanced', 
-            np.unique(np.ravel(labels,order='C')), 
-            np.ravel(labels,order='C')
+            'balanced',
+            np.unique(np.ravel(labels, order='C')),
+            np.ravel(labels, order='C')
         )
         logging.info(f'Calculated weights: {self.weights}')
 
@@ -321,7 +327,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         logging.info(f'Training dataset: {images.shape}, {labels.shape}')
 
         self.seed = getattr(self, 'seed', 34)
-        self.batch_size =  getattr(self, 'batch_size', 16) * \
+        self.batch_size = getattr(self, 'batch_size', 16) * \
             getattr(self, 'strategy.num_replicas_in_sync', 1)
         self.callbacks = self._getCallbacks()
 
@@ -348,7 +354,9 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         dataset['train'] = dataset['train'].map(
             self._dataAugment, num_parallel_calls=tf.data.experimental.AUTOTUNE
         )
-        dataset['train'] = dataset['train'].shuffle(buffer_size=BUFFER_SIZE, seed=self.seed)
+        dataset['train'] = dataset['train'].shuffle(
+            buffer_size=BUFFER_SIZE, seed=self.seed
+        )
         dataset['train'] = dataset['train'].repeat()
         dataset['train'] = dataset['train'].batch(self.batch_size)
         dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
@@ -367,29 +375,35 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
 
         # initialize the model
         with self.strategy.scope():
-                
-            #model = sm.Unet(
-            #    'resnet101',
-            #    input_shape=(self.tile_size, self.tile_size, len(self.output_bands)),
-            #    encoder_weights=None,
-            #    classes=1,
-            #    activation='sigmoid'
-            #)
+
+            # model = sm.Unet(
+            # 'resnet101',
+            # input_shape=
+            # (self.tile_size, self.tile_size, len(self.output_bands)),
+            # encoder_weights=None,
+            # classes=1,
+            # activation='sigmoid'
+            # )
 
             model = unet_batchnorm(
                 nclass=self.n_classes,
-                input_size=(self.tile_size, self.tile_size, len(self.output_bands)),
+                input_size=(
+                    self.tile_size, self.tile_size, len(self.output_bands)
+                ),
                 maps=[64, 128, 256, 512, 1024]
             )
 
-            #model = cloud_net(
-            #    nclass=self.n_classes,
-            #    input_size=(self.tile_size, self.tile_size, len(self.output_bands))
-            #)
+            # model = cloud_net(
+            # nclass=self.n_classes,
+            # input_size=
+            # (self.tile_size, self.tile_size, len(self.output_bands))
+            # )
 
-            #model = sm.Unet(self.BACKBONE, encoder_weights=None, 
-            #                input_shape=(self.tile_size, self.tile_size, len(self.output_bands)),
-            #                classes=self.n_classes, activation='softmax')
+            # model = sm.Unet(
+            # self.BACKBONE, encoder_weights=None,
+            # input_shape=(
+            # self.tile_size, self.tile_size, len(self.output_bands)),
+            # classes=self.n_classes, activation='softmax')
 
             # enabling mixed precision to avoid underflow
             optimizer = tf.keras.optimizers.Adam(lr=0.0001)
@@ -399,14 +413,16 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             # self.loss = ToolBelt.dice_loss
             # self.loss = sm.losses.DiceLoss(class_weights=self.weights) + \
             #    (1 * sm.losses.CategoricalFocalLoss())
-            self.loss = sm.losses.DiceLoss()#class_weights=self.weights)
-            #self.loss = sm.losses.categorical_focal_jaccard_loss
+            # self.loss = sm.losses.DiceLoss()  # class_weights=self.weights)
+            # self.loss = sm.losses.categorical_focal_jaccard_loss
+            self.loss = 'categorical_crossentropy'
 
             model.compile(
                 optimizer,
                 loss=self.loss,
                 # ToolBelt.bcedice_loss,
-                #sm.losses.DiceLoss(), #'binary_crossentropy', #sm.losses.DiceLoss(),
+                # sm.losses.DiceLoss(),
+                # #'binary_crossentropy', #sm.losses.DiceLoss(),
                 metrics=[sm.metrics.iou_score, 'accuracy'],
             )
         model.summary()
@@ -425,14 +441,14 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         )
 
         # IOU
-        y_pred=model.predict(X_val)
-        y_pred_thresholded = y_pred > 0.5
-
-        intersection = np.logical_and(y_val, y_pred_thresholded)
-        union = np.logical_or(y_val, y_pred_thresholded)
-        iou_score = np.sum(intersection) / np.sum(union)
-        print("IoU Score: ", iou_score)
-        return
+        accuracy = model.evaluate(X_val, y_val, batch_size=self.batch_size)
+        # y_pred_thresholded = y_pred > 0.5
+        # intersection = np.logical_and(y_val, y_pred_thresholded)
+        # union = np.logical_or(y_val, y_pred_thresholded)
+        # iou_score = np.sum(intersection) / np.sum(union)
+        # print("IoU Score: ", iou_score)
+        logging.info(f'Model Evaluation: {accuracy}')
+        return model_history
 
     # --------------------------------------------------------------------------
     # Prediction Methods
@@ -446,7 +462,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         outRasterName = os.path.join(
             self.inferenceDir, fileName[:-4].split('/')[-1] + '_pred.tif'
         )
-        
+
         # --------------------------------------------------------------------------------
         # if prediction is not on directory, start predicting
         # (allows for restarting script if it was interrupted at some point)
@@ -460,13 +476,13 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
 
             # Moving the first axis to the end for y, x, b format
             img = np.moveaxis(img.values, 0, -1)
-            img = np.clip(img, 0, 10000).astype(np.int16)  # necessary due to EVHR mishandling
+            img = np.clip(img, 0, 10000).astype(np.int16)
             logging.info(f'Tensor shape: {img.shape}')
 
             predictions_smooth = predict_img_with_smooth_windowing(
                 img,
                 window_size=self.tile_size,
-                subdivisions=2,  # Minimal amount of overlap for windowing. Must be an even number.
+                subdivisions=2,
                 nb_classes=self.n_classes,
                 pred_func=(
                     lambda img_batch_subdiv: self.model.predict(
@@ -483,16 +499,21 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             logging.info(f"After prediction min: {predictions_smooth.min()}")
             logging.info(f"After prediction max: {predictions_smooth.max()}")
 
-            predictions_smooth = self._pred_mask(predictions_smooth, threshold=0.75)
-            predictions_smooth = predictions_smooth.astype(np.uint8)  # type to int16
+            predictions_smooth = self._pred_mask(
+                predictions_smooth, threshold=0.75
+            )
+            predictions_smooth = predictions_smooth.astype(np.uint8)
 
             predictions_smooth = np.squeeze(predictions_smooth)
-            #predictions_smooth = self._grow(predictions_smooth)
+            # predictions_smooth = self._grow(predictions_smooth)
             predictions_smooth = self._denoise(predictions_smooth)
             predictions_smooth = self._binary_fill(predictions_smooth)
 
             # output image to disk
-            ToolBelt.toRasterMask(raster_f=fileName, segments=predictions_smooth, out_tif=outRasterName)
+            ToolBelt.toRasterMask(
+                raster_f=fileName, segments=predictions_smooth,
+                out_tif=outRasterName
+            )
             del predictions_smooth
 
         # This is the case where the prediction was already saved
@@ -520,15 +541,15 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
                     'iou_score': sm.metrics.iou_score
                 }
             )
-        
+
             # get data files to predict
             self.dataPredict = glob.glob(self.data_predict)
             logging.info(f'{len(self.dataPredict)} files to predict.')
-            #[ 
-            #    '/att/nobackup/jacaraba/DOWNLOAD/Kassassa8bands/WV02_20101020_M1BS_1030010007BBFA00-toa_5000-5000.tif', 
+            # [
+            #    '/att/nobackup/jacaraba/DOWNLOAD/Kassassa8bands/WV02_20101020_M1BS_1030010007BBFA00-toa_5000-5000.tif',
             #    '/att/nobackup/jacaraba/DOWNLOAD/Kassassa8bands/WV02_20101020_M1BS_1030010007BBFA00-toa_0-0.tif',
             #    '/att/nobackup/jacaraba/DOWNLOAD/Kassassa8bands/WV03_20150717_M1BS_104001000ED1CC00-toa_5000-0.tif',
-            #]
+            # ]
             # glob.glob('/att/nobackup/mwooten3/Senegal_LCLUC/VHR/priority-tiles/kassassa_M1BS-8band/*.tif')
 
             # iterate over each file and predict
@@ -538,6 +559,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
     # --------------------------------------------------------------------------
     # Postprocessing Methods
     # --------------------------------------------------------------------------
+
 
 # -----------------------------------------------------------------------------
 # Invoke the main
