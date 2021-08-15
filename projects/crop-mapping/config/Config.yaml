@@ -6,7 +6,8 @@
 # experiment_name: '2021-08-11c' - normal std, looks decent
 # experiment_name: '2021-08-11d' - contrast sucks, contrast stretch plus std
 # experiment_name: '2021-08-11e' - rectified adam with warmup, best so far, std
-experiment_name: '2021-08-11f'
+# experiment_name: '2021-08-11f' - resnet unet with categorical, std, rectified
+experiment_name: '2021-08-11g'
 
 #-----------------------------------------------------------------------
 # General Parameters
