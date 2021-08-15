@@ -418,14 +418,40 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
 
             optimizer = tf.keras.mixed_precision.LossScaleOptimizer(optimizer)
 
+            from tensorflow.keras import backend as K
+            def jaccard_distance_loss(y_true, y_pred, numLabels=7, smooth=100):
+                """
+                Jaccard = (|X & Y|)/ (|X|+ |Y| - |X & Y|)
+                        = sum(|A*B|)/(sum(|A|)+sum(|B|)-sum(|A*B|))
+
+                The jaccard distance loss is usefull for unbalanced datasets.
+                This has been shifted so it converges on 0 and is smoothed to
+                avoid exploding or disapearing gradient.
+                Ref: https://en.wikipedia.org/wiki/Jaccard_index
+                @url: https://gist.github.com/wassname/f1452b748efcbeb4cb9b1d059dce6f96
+                @author: wassname
+                Modified by jordancaraballo to support one-hot tensors.
+                """
+                jacloss = 0
+                for index in range(numLabels):
+                    y_true_f = K.flatten(y_true[:, :, :, index])
+                    y_pred_f = K.flatten(y_pred[:, :, :, index])
+                    intersection = K.sum(K.abs(y_true_f * y_pred_f))
+                    sum_ = K.sum(K.abs(y_true_f) + K.abs(y_pred_f))
+                    jac = (intersection + smooth) / (sum_ - intersection + smooth)
+                    jacloss += (1 - jac) * smooth
+                return jacloss
+
+
             # loss
             # self.loss = ToolBelt.dice_loss
             # self.loss = sm.losses.DiceLoss(class_weights=self.weights) + \
             #    (1 * sm.losses.CategoricalFocalLoss())
-            self.loss = sm.losses.DiceLoss()  # class_weights=self.weights)
+            # self.loss = sm.losses.DiceLoss()  # class_weights=self.weights)
             # self.loss = sm.losses.categorical_focal_jaccard_loss
             # self.loss = 'categorical_crossentropy'
             # self.loss = 'sparse_categorical_crossentropy'
+            self.loss = jaccard_distance_loss
 
             model.compile(
                 optimizer,
