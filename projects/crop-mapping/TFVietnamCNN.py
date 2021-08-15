@@ -314,7 +314,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         # normalize data, prepare for training
         # images = tf.keras.utils.normalize(images, axis=-1, order=2)
         # images = self._contrastStretch(images)
-        self.meanList, self.stdList = self._getSTDInfo()
+        self.meanList, self.stdList = self._getSTDInfo(images)
         logging.info(f"Means {self.meanList}")
         logging.info(f"Stds {self.stdList}")
 
