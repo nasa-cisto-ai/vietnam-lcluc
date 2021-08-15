@@ -415,7 +415,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
                 input_size=(
                     self.tile_size, self.tile_size, len(self.output_bands)
                 ),
-                maps=[64, 128, 256, 512, 1024]
+                maps=[32, 64, 128, 256, 512] #, 1024]
             )
 
             # model = cloud_net(
