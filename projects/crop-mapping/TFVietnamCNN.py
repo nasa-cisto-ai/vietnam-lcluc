@@ -325,6 +325,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         # labels = tf.keras.utils.to_categorical(
         #    labels, num_classes=self.n_classes, dtype='float32'
         # )
+        labels = np.expand_dims(labels, axis=-1)
         logging.info(f'Training dataset: {images.shape}, {labels.shape}')
 
         self.seed = getattr(self, 'seed', 34)
