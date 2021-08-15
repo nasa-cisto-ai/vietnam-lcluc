@@ -409,7 +409,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             # classes=self.n_classes, activation='softmax')
             model = sm.Unet(
                 backbone_name='resnet34', encoder_weights=None,
-                input_shape=(None, None, len(self.output_bands))
+                input_shape=(self.tile_size, self.tile_size, len(self.output_bands))
             )
 
             # enabling mixed precision to avoid underflow
