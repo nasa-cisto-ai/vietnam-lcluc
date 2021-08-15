@@ -7,7 +7,9 @@
 # experiment_name: '2021-08-11d' - contrast sucks, contrast stretch plus std
 # experiment_name: '2021-08-11e' - rectified adam with warmup, best so far, std
 # experiment_name: '2021-08-11f' - resnet unet with categorical, std, rectified
-experiment_name: '2021-08-11g'
+# experiment_name: '2021-08-11g' - none of the losses from sm is good
+# 512 tile size, catgeorical, std
+experiment_name: '2021-08-11h'
 
 #-----------------------------------------------------------------------
 # General Parameters
@@ -36,7 +38,7 @@ output_bands:
 # Model Parameters
 #-----------------------------------------------------------------------
 seed: 22
-tile_size: 256
+tile_size: 512
 n_classes: 7
 test_size: 0.20
 batch_size: 16

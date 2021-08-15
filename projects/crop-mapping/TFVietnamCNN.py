@@ -410,13 +410,13 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             # )
 
             # works for now
-            #model = unet_batchnorm(
-            #    nclass=self.n_classes,
-            #    input_size=(
-            #        self.tile_size, self.tile_size, len(self.output_bands)
-            #    ),
-            #    maps=[64, 128, 256, 512, 1024]
-            #)
+            model = unet_batchnorm(
+                nclass=self.n_classes,
+                input_size=(
+                    self.tile_size, self.tile_size, len(self.output_bands)
+                ),
+                maps=[64, 128, 256, 512, 1024]
+            )
 
             # model = cloud_net(
             # nclass=self.n_classes,
@@ -429,11 +429,11 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             # input_shape=(
             # self.tile_size, self.tile_size, len(self.output_bands)),
             # classes=self.n_classes, activation='softmax')
-            model = sm.Unet(
-                backbone_name='resnet34', encoder_weights=None,
-                input_shape=(None, None, len(self.output_bands)),
-                classes=self.n_classes, activation='softmax'
-            )
+            #model = sm.Unet(
+            #    backbone_name='resnet34', encoder_weights=None,
+            #    input_shape=(None, None, len(self.output_bands)),
+            #    classes=self.n_classes, activation='softmax'
+            #)
 
             # enabling mixed precision to avoid underflow
             # optimizer = tf.keras.optimizers.Adam(lr=0.0001)
@@ -452,10 +452,10 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             #    (1 * sm.losses.CategoricalFocalLoss())
             # self.loss = sm.losses.DiceLoss()  # class_weights=self.weights)
             # self.loss = sm.losses.categorical_focal_jaccard_loss
-            # self.loss = 'categorical_crossentropy'
+            self.loss = 'categorical_crossentropy'
             # self.loss = 'sparse_categorical_crossentropy'
             # self.loss = jaccard_distance_loss
-            self.loss = sm.losses.categorical_focal_loss
+            # self.loss = sm.losses.categorical_focal_loss
 
             model.compile(
                 optimizer,
