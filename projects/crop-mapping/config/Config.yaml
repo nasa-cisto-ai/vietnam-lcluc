@@ -59,6 +59,7 @@ cuda_devices: 0,1,2,3
 # (ai-lcluc) [jacaraba@gpu021 data]$ ls /att/nobackup/mwooten3/Senegal_LCLUC/VHR/priority-tiles/
 # Aki-tiles-ETZ  eCasamance_stereo  kassassa_M1BS-8band  Konrad-tiles
 # model_filename: '/home/jacaraba/senegal-lcluc/projects/cloud-mask/data/2021-08-10c-18.h5'
-model_filename: '/home/jacaraba/vietnam-lcluc/projects/crop-mapping/data/2021-08-11e-17.h5'
+# model_filename: '/home/jacaraba/vietnam-lcluc/projects/crop-mapping/data/2021-08-11e-17.h5'
+model_filename: '/home/jacaraba/vietnam-lcluc/projects/crop-mapping/data/2021-08-11i-19.h5'
 data_predict: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/7-band/*.tif'
 inference_output_dir: '/att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_LCLUC/2021-08-11e'
