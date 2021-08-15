@@ -422,10 +422,10 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             # self.loss = ToolBelt.dice_loss
             # self.loss = sm.losses.DiceLoss(class_weights=self.weights) + \
             #    (1 * sm.losses.CategoricalFocalLoss())
-            # self.loss = sm.losses.DiceLoss()  # class_weights=self.weights)
+            self.loss = sm.losses.DiceLoss()  # class_weights=self.weights)
             # self.loss = sm.losses.categorical_focal_jaccard_loss
             # self.loss = 'categorical_crossentropy'
-            self.loss = 'sparse_categorical_crossentropy'
+            # self.loss = 'sparse_categorical_crossentropy'
 
             model.compile(
                 optimizer,

@@ -173,6 +173,26 @@ class ToolBelt(object):
         else:
             return (img - img.mean(axis)) / (img.std(axis) + c)
 
+    def _standardizeCalcBatch(self, img, mean=None, std=None, axis=(0, 1), c=1e-8):
+        """
+        Normalize to zero mean and unit standard deviation along the given axis.
+        Args:
+            img (numpy or cupy): array (w, h, c)
+            axis (integer tuple): into or tuple of width and height axis
+            c (float): epsilon to bound given std value
+        Return:
+            Normalize single image
+        ----------
+        Example
+        ----------
+            image_normalize(arr, axis=(0, 1), c=1e-8)
+        """
+        if mean and std:
+            return (img - mean) / (std + c)
+        else:
+            return (img - img.mean(axis)) / (img.std(axis) + c)
+
+
     def _standardize(self, img, mean=None, std=None, axis=(0, 1), c=1e-8):
         """
         Normalize batch to zero mean and unit standard deviation.
