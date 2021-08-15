@@ -99,9 +99,9 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
 
         # standardize 0.70, 0.30
         if np.random.random_sample() > 0.70:
-            image = self._standardizeLocalCalc(image)
+            image = self._standardizeLocalCalcTensor(image)
         else:
-            image = self._standardizeCalc(image)
+            image = self._standardizeCalcTensor(image)
 
         return image, label
 
@@ -120,9 +120,9 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         """
         # standardize 0.70, 0.30
         if np.random.random_sample() > 0.70:
-            image = self._standardizeLocalCalc(image)
+            image = self._standardizeLocalCalcTensor(image)
         else:
-            image = self._standardizeCalc(image)
+            image = self._standardizeCalcTensor(image)
         return image, label
 
     # --------------------------------------------------------------------------
