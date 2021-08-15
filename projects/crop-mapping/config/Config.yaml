@@ -10,7 +10,8 @@
 # 512 tile size, catgeorical, std
 # experiment_name: '2021-08-11h'
 # rectified adam with warmup, best so far, std
-experiment_name: '2021-08-11e'
+# experiment_name: '2021-08-11e'
+experiment_name: '2021-08-11i'
 
 #-----------------------------------------------------------------------
 # General Parameters
@@ -39,7 +40,7 @@ output_bands:
 # Model Parameters
 #-----------------------------------------------------------------------
 seed: 22
-tile_size: 256
+tile_size: 128
 n_classes: 7
 test_size: 0.20
 batch_size: 16
