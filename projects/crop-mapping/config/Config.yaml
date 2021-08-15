@@ -13,8 +13,8 @@
 # experiment_name: '2021-08-11e'
 # experiment_name: '2021-08-11i' - better than e, best for now
 # more tiles to work with
-experiment_name: '2021-08-11j'
-
+# experiment_name: '2021-08-11j' - looks promising, combination of stds
+experiment_name: '2021-08-11i'
 
 #-----------------------------------------------------------------------
 # General Parameters

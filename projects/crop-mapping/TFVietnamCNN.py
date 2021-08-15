@@ -552,6 +552,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
                 raster_f=fileName, segments=predictions_smooth,
                 out_tif=outRasterName
             )
+            os.chmod(outRasterName, 0o777)
             del predictions_smooth
 
         # This is the case where the prediction was already saved
