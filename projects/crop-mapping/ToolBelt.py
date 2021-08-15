@@ -144,19 +144,29 @@ class ToolBelt(object):
             axis=-1
         )
 
-    def _contrastStretch(self, img, lower=0.02, higher=0.98, min_value=0, max_value=1):
+    def _contrastStretch(
+        self, img, lower=0.02, higher=0.98, min_value=0, max_value=1
+    ):
         if len(img.shape) <= 3:
-            return self._contrastStretchCalc(img, percentile=(2,98), out_range=(0,1))
+            return self._contrastStretchCalc(
+                img, percentile=(2, 98), out_range=(0, 1)
+            )
         else:
             for b in range(img.shape[0]):
                 img[b, :, :, :] = self._contrastStretchCalc(
-                    img[b, :, :, :], percentile=(2,98), out_range=(0,1)
+                    img[b, :, :, :], percentile=(2, 98), out_range=(0, 1)
                 )
             return img
 
+    def _getSTDInfo(self, images, axis=(0, 1)):
+        means = images.mean(axis)
+        stds = images.std(axis)
+        np.savez(f"{self.experiment_name}_norm_data.npy", mean=means, std=stds)
+        return means, stds
+
     def _standardizeCalc(self, img, mean=None, std=None, axis=(0, 1), c=1e-8):
         """
-        Normalize to zero mean and unit standard deviation along the given axis.
+        Normalize to zero mean and unit standard deviation along the given axis
         Args:
             img (numpy or cupy): array (w, h, c)
             axis (integer tuple): into or tuple of width and height axis
@@ -173,9 +183,9 @@ class ToolBelt(object):
         else:
             return (img - img.mean(axis)) / (img.std(axis) + c)
 
-    def _standardizeCalcBatch(self, img, mean=None, std=None, axis=(0, 1), c=1e-8):
+    def _standardizeLocalCalc(self, img, axis=(0, 1), c=1e-8):
         """
-        Normalize to zero mean and unit standard deviation along the given axis.
+        Normalize to zero mean and unit standard deviation along the given axis
         Args:
             img (numpy or cupy): array (w, h, c)
             axis (integer tuple): into or tuple of width and height axis
@@ -187,11 +197,10 @@ class ToolBelt(object):
         ----------
             image_normalize(arr, axis=(0, 1), c=1e-8)
         """
-        if mean and std:
-            return (img - mean) / (std + c)
-        else:
-            return (img - img.mean(axis)) / (img.std(axis) + c)
-
+        for i in range(img.shape[-1]):  # for each channel in images
+            img[:, :, i] = \
+                (img[:, :, i] - self.means[i]) / (self.stds[i] + c)
+        return img
 
     def _standardize(self, img, mean=None, std=None, axis=(0, 1), c=1e-8):
         """
@@ -209,7 +218,9 @@ class ToolBelt(object):
         """
 
         if len(img.shape) <= 3:
-            return self._standardizeCalc(img, mean=mean, std=std, axis=axis, c=c)
+            return self._standardizeCalc(
+                img, mean=mean, std=std, axis=axis, c=c
+            )
         else:
             for b in range(img.shape[0]):
                 img[b, :, :, :] = self._standardizeCalc(
