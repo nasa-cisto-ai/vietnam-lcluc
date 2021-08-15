@@ -120,6 +120,9 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         ----------
             data_augment(image, label)
         """
+        image = tf.convert_to_tensor(image)
+        image = tf.cast(image, tf.float32)
+
         # standardize 0.70, 0.30
         if np.random.random_sample() > 0.70:
             image = self._standardizeLocalCalcTensor(image)
