@@ -236,10 +236,12 @@ class ToolBelt(object):
         ----------
             image_normalize(arr, axis=(0, 1), c=1e-8)
         """
+        output = list()
         for i in range(img.shape[-1]):  # for each channel in images
-            img[:, :, i] = \
+            output.append(
                 (img[:, :, i] - self.means[i]) / (self.stds[i] + c)
-        return img
+            )
+        return tf.stack(output, axis=-1)
 
     def _standardize(self, img, mean=None, std=None, axis=(0, 1), c=1e-8):
         """

@@ -98,6 +98,8 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             label = tf.image.rot90(label, k=3)
 
         # standardize 0.70, 0.30
+        image = tf.cast(image, tf.float32)
+
         if np.random.random_sample() > 0.70:
             image = self._standardizeLocalCalcTensor(image)
         else:
