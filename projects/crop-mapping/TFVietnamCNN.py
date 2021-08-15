@@ -536,18 +536,19 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             )
 
             logging.info(f"After prediction shape: {predictions_smooth.shape}")
-            logging.info(f"After prediction min: {predictions_smooth.min()}")
-            logging.info(f"After prediction max: {predictions_smooth.max()}")
+            predictions_smooth = np.argmax(predictions_smooth, axis=-1)
+            logging.info(f"After prediction shape: {predictions_smooth.shape}")
 
-            predictions_smooth = self._pred_mask(
-                predictions_smooth, threshold=0.75
-            )
-            predictions_smooth = predictions_smooth.astype(np.uint8)
-
-            predictions_smooth = np.squeeze(predictions_smooth)
+            # logging.info(f"After prediction min: {predictions_smooth.min()}")
+            # logging.info(f"After prediction max: {predictions_smooth.max()}")
+            # predictions_smooth = self._pred_mask(
+            #    predictions_smooth, threshold=0.75
+            # )
+            # predictions_smooth = predictions_smooth.astype(np.uint8)
+            # predictions_smooth = np.squeeze(predictions_smooth)
             # predictions_smooth = self._grow(predictions_smooth)
-            predictions_smooth = self._denoise(predictions_smooth)
-            predictions_smooth = self._binary_fill(predictions_smooth)
+            # predictions_smooth = self._denoise(predictions_smooth)
+            # predictions_smooth = self._binary_fill(predictions_smooth)
 
             # output image to disk
             ToolBelt.toRasterMask(
@@ -569,7 +570,9 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         try:
             self.model_filename
         except AttributeError:
-            modelsList = glob.glob(os.path.join(self.modelDir, '*.h5'))
+            modelsList = glob.glob(
+                os.path.join(self.modelDir, f'{self.experiment_name}*.h5')
+            )
             self.model_filename = max(modelsList, key=os.path.getctime)
         logging.info(f'Loading {self.model_filename}')
 

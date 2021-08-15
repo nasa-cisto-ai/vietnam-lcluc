@@ -5,11 +5,12 @@
 # experiment_name: '2021-08-11b' - crossentropy better, not great
 # experiment_name: '2021-08-11c' - normal std, looks decent
 # experiment_name: '2021-08-11d' - contrast sucks, contrast stretch plus std
-# experiment_name: '2021-08-11e' - rectified adam with warmup, best so far, std
 # experiment_name: '2021-08-11f' - resnet unet with categorical, std, rectified
 # experiment_name: '2021-08-11g' - none of the losses from sm is good
 # 512 tile size, catgeorical, std
-experiment_name: '2021-08-11h'
+# experiment_name: '2021-08-11h'
+# rectified adam with warmup, best so far, std
+experiment_name: '2021-08-11e'
 
 #-----------------------------------------------------------------------
 # General Parameters
@@ -38,7 +39,7 @@ output_bands:
 # Model Parameters
 #-----------------------------------------------------------------------
 seed: 22
-tile_size: 512
+tile_size: 256
 n_classes: 7
 test_size: 0.20
 batch_size: 16
@@ -57,5 +58,5 @@ cuda_devices: 0,1,2,3
 # (ai-lcluc) [jacaraba@gpu021 data]$ ls /att/nobackup/mwooten3/Senegal_LCLUC/VHR/priority-tiles/
 # Aki-tiles-ETZ  eCasamance_stereo  kassassa_M1BS-8band  Konrad-tiles
 # model_filename: '/home/jacaraba/senegal-lcluc/projects/cloud-mask/data/2021-08-10c-18.h5'
-# data_predict: '/att/nobackup/mwooten3/Senegal_LCLUC/VHR/priority-tiles/kassassa_M1BS-8band/*.tif'
-inference_output_dir: '/att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_LCLUC'
+data_predict: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/7-band/*.tif'
+inference_output_dir: '/att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_LCLUC/2021-08-11e'
