@@ -321,10 +321,10 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         )
         logging.info(f'Calculated weights: {self.weights}')
 
-        # set labels to categorical
-        labels = tf.keras.utils.to_categorical(
-            labels, num_classes=self.n_classes, dtype='float32'
-        )
+        # set labels to categorical - using sparse categorical for testing
+        # labels = tf.keras.utils.to_categorical(
+        #    labels, num_classes=self.n_classes, dtype='float32'
+        # )
         logging.info(f'Training dataset: {images.shape}, {labels.shape}')
 
         self.seed = getattr(self, 'seed', 34)
@@ -407,13 +407,13 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             # classes=self.n_classes, activation='softmax')
 
             # enabling mixed precision to avoid underflow
-            # optimizer = tf.keras.optimizers.Adam(lr=0.0001)
-            optimizer = tfa.optimizers.RectifiedAdam(
-                lr=1e-3,
-                total_steps=10000,
-                warmup_proportion=0.1,
-                min_lr=1e-5,
-            )
+            optimizer = tf.keras.optimizers.Adam(lr=0.0001)
+            # optimizer = tfa.optimizers.RectifiedAdam(
+            #    lr=1e-3,
+            #    total_steps=10000,
+            #    warmup_proportion=0.1,
+            #    min_lr=1e-5,
+            # )
 
             optimizer = tf.keras.mixed_precision.LossScaleOptimizer(optimizer)
 
@@ -423,7 +423,8 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             #    (1 * sm.losses.CategoricalFocalLoss())
             # self.loss = sm.losses.DiceLoss()  # class_weights=self.weights)
             # self.loss = sm.losses.categorical_focal_jaccard_loss
-            self.loss = 'categorical_crossentropy'
+            # self.loss = 'categorical_crossentropy'
+            self.loss = 'sparse_categorical_crossentropy'
 
             model.compile(
                 optimizer,
