@@ -322,10 +322,10 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         logging.info(f'Calculated weights: {self.weights}')
 
         # set labels to categorical - using sparse categorical for testing
-        # labels = tf.keras.utils.to_categorical(
-        #    labels, num_classes=self.n_classes, dtype='float32'
-        # )
-        labels = np.expand_dims(labels, axis=-1)
+        labels = tf.keras.utils.to_categorical(
+            labels, num_classes=self.n_classes, dtype='float32'
+        )
+        # labels = np.expand_dims(labels, axis=-1)
         logging.info(f'Training dataset: {images.shape}, {labels.shape}')
 
         self.seed = getattr(self, 'seed', 34)
@@ -408,13 +408,13 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             # classes=self.n_classes, activation='softmax')
 
             # enabling mixed precision to avoid underflow
-            optimizer = tf.keras.optimizers.Adam(lr=0.0001)
-            # optimizer = tfa.optimizers.RectifiedAdam(
-            #    lr=1e-3,
-            #    total_steps=10000,
-            #    warmup_proportion=0.1,
-            #    min_lr=1e-5,
-            # )
+            # optimizer = tf.keras.optimizers.Adam(lr=0.0001)
+            optimizer = tfa.optimizers.RectifiedAdam(
+                lr=1e-3,
+                total_steps=10000,
+                warmup_proportion=0.1,
+                min_lr=1e-5,
+            )
 
             optimizer = tf.keras.mixed_precision.LossScaleOptimizer(optimizer)
 
