@@ -96,6 +96,13 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         if np.random.random_sample() > 0.5:  # rotate 270 degrees
             image = tf.image.rot90(image, k=3)
             label = tf.image.rot90(label, k=3)
+
+        # standardize 0.75, 0.25
+        #if np.random.random_sample() > 0.75:
+        #    logging.info('Local std using image std')
+        #else:
+        #    logging.info('Local std using batch std')
+
         return image, label
 
     def _dataAugmentTest(self, image, label):
@@ -284,7 +291,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             std = np.std(images[:, :, :, i])
             f.write('{},{},{}\n'.format(i, mean, std))
             means.append(mean)
-            stds.append(stds)
+            stds.append(std)
         f.close()  # close file
         return means, stds
 
@@ -441,13 +448,14 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
 
             # loss
             # self.loss = ToolBelt.dice_loss
-            self.loss = sm.losses.DiceLoss(class_weights=self.weights) + \
-                (1 * sm.losses.CategoricalFocalLoss())
+            #elf.loss = sm.losses.DiceLoss(class_weights=self.weights) + \
+            #    (1 * sm.losses.CategoricalFocalLoss())
             # self.loss = sm.losses.DiceLoss()  # class_weights=self.weights)
             # self.loss = sm.losses.categorical_focal_jaccard_loss
             # self.loss = 'categorical_crossentropy'
             # self.loss = 'sparse_categorical_crossentropy'
             # self.loss = jaccard_distance_loss
+            self.loss = sm.losses.categorical_focal_jaccard_loss
 
             model.compile(
                 optimizer,
