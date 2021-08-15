@@ -118,6 +118,11 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         ----------
             data_augment(image, label)
         """
+        # standardize 0.70, 0.30
+        if np.random.random_sample() > 0.70:
+            image = self._standardizeLocalCalc(image)
+        else:
+            image = self._standardizeCalc(image)
         return image, label
 
     # --------------------------------------------------------------------------
