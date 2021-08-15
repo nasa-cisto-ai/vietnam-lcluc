@@ -526,11 +526,11 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
                 nb_classes=self.n_classes,
                 pred_func=(
                     lambda img_batch_subdiv: self.model.predict(
-                        self._standardize(
-                            self._contrastStretch(
-                                img_batch_subdiv
-                            )
-                        )
+                        self._standardize(img_batch_subdiv)
+                        #    # self._contrastStretch(
+                        #    #    img_batch_subdiv
+                        #    # )
+                        # )
                     )
                 )
             )
