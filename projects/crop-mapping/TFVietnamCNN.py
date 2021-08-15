@@ -276,6 +276,18 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
     #    #    img, mask = self._preprocess_data(img, mask, self.n_classes)
     #    #    yield (img, mask)
 
+    def _getSTDInfo(self, images, means=list(), stds=list()):
+        f = open(f"{self.experiment_name}_norm_data.csv", "w+")
+        f.write("i,channel_mean,channel_std\n")
+        for i in range(images.shape[-1]):
+            mean = np.mean(images[:, :, :, i])
+            std = np.std(images[:, :, :, i])
+            f.write('{},{},{}\n'.format(i, mean, std))
+            means.append(mean)
+            stds.append(stds)
+        f.close()  # close file
+        return means, stds
+
     # --------------------------------------------------------------------------
     # Training Methods
     # --------------------------------------------------------------------------
@@ -302,8 +314,11 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
         # normalize data, prepare for training
         # images = tf.keras.utils.normalize(images, axis=-1, order=2)
         # images = self._contrastStretch(images)
-        images = self._standardize(images)
+        self.meanList, self.stdList = self._getSTDInfo()
+        logging.info(f"Means {self.meanList}")
+        logging.info(f"Stds {self.stdList}")
 
+        images = self._standardize(images)
         logging.info(f'Images {images.shape}, {images.mean()}, {images.max()}')
 
         # train_img_path = "data/data_for_keras_aug/train_images/"
@@ -410,7 +425,7 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             model = sm.Unet(
                 backbone_name='resnet34', encoder_weights=None,
                 input_shape=(None, None, len(self.output_bands)),
-                classes=self.n_classes
+                classes=self.n_classes, activation='softmax'
             )
 
             # enabling mixed precision to avoid underflow
