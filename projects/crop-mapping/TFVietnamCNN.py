@@ -586,7 +586,13 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             )
 
             # get data files to predict
-            self.dataPredict = glob.glob(self.data_predict)
+            # self.dataPredict = glob.glob(self.data_predict)
+            self.dataPredict = [
+                '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/7-band/Keelin05_20160318_data-7band.tif',
+                '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/7-band/Keelin13_20160318_data-7band.tif',
+                '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/7-band/Keelin23_20110201_data-7band.tif',
+                '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/7-band/Keelin09_20190327__subset_data-7band.tif'
+            ]
             logging.info(f'{len(self.dataPredict)} files to predict.')
             # [
             #    '/att/nobackup/jacaraba/DOWNLOAD/Kassassa8bands/WV02_20101020_M1BS_1030010007BBFA00-toa_5000-5000.tif',
