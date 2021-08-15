@@ -387,13 +387,14 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             # activation='sigmoid'
             # )
 
-            model = unet_batchnorm(
-                nclass=self.n_classes,
-                input_size=(
-                    self.tile_size, self.tile_size, len(self.output_bands)
-                ),
-                maps=[64, 128, 256, 512, 1024]
-            )
+            # works for now
+            #model = unet_batchnorm(
+            #    nclass=self.n_classes,
+            #    input_size=(
+            #        self.tile_size, self.tile_size, len(self.output_bands)
+            #    ),
+            #    maps=[64, 128, 256, 512, 1024]
+            #)
 
             # model = cloud_net(
             # nclass=self.n_classes,
@@ -406,6 +407,10 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
             # input_shape=(
             # self.tile_size, self.tile_size, len(self.output_bands)),
             # classes=self.n_classes, activation='softmax')
+            model = sm.Unet(
+                backbone_name='resnet34', encoder_weights=None,
+                input_shape=(None, None, len(self.output_bands))
+            )
 
             # enabling mixed precision to avoid underflow
             # optimizer = tf.keras.optimizers.Adam(lr=0.0001)
@@ -418,40 +423,15 @@ class TFVietnamCNN(ConfigYAML, ToolBelt):
 
             optimizer = tf.keras.mixed_precision.LossScaleOptimizer(optimizer)
 
-            from tensorflow.keras import backend as K
-            def jaccard_distance_loss(y_true, y_pred, numLabels=7, smooth=100):
-                """
-                Jaccard = (|X & Y|)/ (|X|+ |Y| - |X & Y|)
-                        = sum(|A*B|)/(sum(|A|)+sum(|B|)-sum(|A*B|))
-
-                The jaccard distance loss is usefull for unbalanced datasets.
-                This has been shifted so it converges on 0 and is smoothed to
-                avoid exploding or disapearing gradient.
-                Ref: https://en.wikipedia.org/wiki/Jaccard_index
-                @url: https://gist.github.com/wassname/f1452b748efcbeb4cb9b1d059dce6f96
-                @author: wassname
-                Modified by jordancaraballo to support one-hot tensors.
-                """
-                jacloss = 0
-                for index in range(numLabels):
-                    y_true_f = K.flatten(y_true[:, :, :, index])
-                    y_pred_f = K.flatten(y_pred[:, :, :, index])
-                    intersection = K.sum(K.abs(y_true_f * y_pred_f))
-                    sum_ = K.sum(K.abs(y_true_f) + K.abs(y_pred_f))
-                    jac = (intersection + smooth) / (sum_ - intersection + smooth)
-                    jacloss += (1 - jac) * smooth
-                return jacloss
-
-
             # loss
             # self.loss = ToolBelt.dice_loss
             # self.loss = sm.losses.DiceLoss(class_weights=self.weights) + \
             #    (1 * sm.losses.CategoricalFocalLoss())
             # self.loss = sm.losses.DiceLoss()  # class_weights=self.weights)
             # self.loss = sm.losses.categorical_focal_jaccard_loss
-            # self.loss = 'categorical_crossentropy'
+            self.loss = 'categorical_crossentropy'
             # self.loss = 'sparse_categorical_crossentropy'
-            self.loss = jaccard_distance_loss
+            # self.loss = jaccard_distance_loss
 
             model.compile(
                 optimizer,
