@@ -18,7 +18,7 @@ import rasterio.features as riofeat
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier as sklRFC
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 
 try:
     import cupy as cp
@@ -160,7 +160,7 @@ def main():
 
     parser.add_argument(
         '-ts', '--test-size', type=float, required=False,
-        dest='test_size', default=0.30, help='Test size rate (e.g .30)')
+        dest='test_size', default=0.20, help='Test size rate (e.g .30)')
 
     parser.add_argument(
         '-nt', '--n-trees', type=int, required=False,
@@ -317,13 +317,22 @@ def main():
         rf_model.fit(x_train, y_train)
 
         if HAS_GPU:
-            score = accuracy_score(
+            acc_score = accuracy_score(
+                y_test, rf_model.predict(x_test).to_array())
+            prf_score = precision_recall_fscore_support(
                 y_test, rf_model.predict(x_test).to_array())
         else:
-            score = accuracy_score(
+            acc_score = accuracy_score(
                 y_test, rf_model.predict(x_test))
+            prf_score = precision_recall_fscore_support(
+                y_test, rf_model.predict(x_test).to_array())
 
-        logging.info(f'Training accuracy: {score}')
+        logging.info(f'Training accuracy: {acc_score}')
+        logging.info(f'Precision, Recall, F-Score: {prf_score}')
+
+        # make output directory
+        os.makedirs(
+            os.path.dirname(os.path.realpath(args.output_pkl)), exist_ok=True)
 
         # export model to file
         try:

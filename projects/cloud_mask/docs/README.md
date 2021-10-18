@@ -62,6 +62,7 @@ python modify_csv.py --input-csv /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jord
 R G B NIR1: cloud_training_4band_RGBNIR1.csv
 
 ```bash
+python rf_driver.py --step train --train-csv /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/labels/cloud_training_4band_RGBNIR1.csv --seed 42 --test-size 0.20 --n-trees 20 --max-features log2 --output-pkl /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/models/cloud_training_4band_RGBNIR1/cloud_training_4band_RGBNIR1.pkl
 ```
 
 B G R NIR1: cloud_training_4band_BGRNIR1.csv
