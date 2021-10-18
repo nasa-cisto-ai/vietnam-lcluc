@@ -1,0 +1,25 @@
+#---------------------------------------------------------------------------------------
+# Derived from: https://gitlab.nccs.nasa.gov/nccs-ci/nccs-containers/-/blob/master/.gitlab-ci.yml
+#
+# Maintainer: jordan.a.caraballo-vega@nasa.gov
+#---------------------------------------------------------------------------------------
+stages:
+  - build_nccs_lcluc
+
+build_nccs_lcluc_ubuntu20:
+  stage: build_nccs_lcluc
+  tags:
+    - build
+    - push
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$DOCKER_REGISTRY\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
+    - >
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/requirements/Dockerfile 
+      --destination nasanccs/nccs-lcluc:2021.10
+  only:
+    changes:
+      $CI_PROJECT_DIR/requirements/Dockerfile
