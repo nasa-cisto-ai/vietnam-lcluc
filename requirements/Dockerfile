@@ -30,4 +30,6 @@ ENV RAPIDS_DIR=/rapids
 RUN source activate rapids \
     && pip install --upgrade rasterio \
     && pip install --upgrade tensorflow tensorflow-addons \
-    && pip install --upgrade opencv-python
+    && pip install --upgrade opencv-python \
+    && pip cache purge \
+    && rm -rf /root/.cache/
