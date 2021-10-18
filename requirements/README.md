@@ -4,9 +4,9 @@ A Docker container was created for this project. Dependencies are all
 baked into the container image. Mainly CUDA RAPIDS and common data 
 science libraries. The container is built via GitLab CI.
 
-## Container Recipe Build
-
 ## Gitlab CI Pipeline
+
+Setup environment variables to support build configurations and deployment.
 
 - Test Code Quality
 - Test Code Syntax
@@ -15,8 +15,11 @@ science libraries. The container is built via GitLab CI.
 
 ```bash
 module load singularity
-singularity build --sandbox rapids docker://nvcr.io/nvidia/rapidsai/rapidsai:21.10-cuda11.2-runtime-centos8
+singularity build --sandbox nccs-lcluc docker://nasanccs/nccs-lcluc:2021.10
+```
 
+## Interacting with the Container
 
-docker pull nvcr.io/nvidia/rapidsai/rapidsai:21.10-cuda11.2-base-ubuntu20.04
+```bash
+singularity shell --nv -B $NOBACKUP:$NOBACKUP nccs-lcluc
 ```

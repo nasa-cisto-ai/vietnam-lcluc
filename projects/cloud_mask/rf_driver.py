@@ -36,9 +36,7 @@ __status__ = "Production"
 
 
 # -----------------------------------------------------------------------------
-# main
-#
-# python rf_driver.py options here
+# rf_driver.py methods
 # -----------------------------------------------------------------------------
 def predict(data, model, ws=[5120, 5120]):
     """
@@ -121,110 +119,68 @@ def toraster(
     logging.info(f'Prediction saved at {output}')
 
 
+# -----------------------------------------------------------------------------
+# main
+#
+# python rf_driver.py options here
+# -----------------------------------------------------------------------------
 def main():
 
     # Process command-line args.
     desc = 'Use this application to extract balanced points using WV data.'
     parser = argparse.ArgumentParser(description=desc)
 
-    parser.add_argument('-om',
-                        '--output-pkl',
-                        type=str,
-                        required=True,
-                        dest='output_pkl',
-                        help='Path to the output PKL file')
-
-    parser.add_argument('-d',
-                        '--data-csv',
-                        type=str,
-                        required=False,
-                        dest='data_csv',
-                        help='Path to the data CSV configuration file')
-
-    parser.add_argument('-tc',
-                        '--train-csv',
-                        type=str,
-                        required=True,
-                        dest='train_csv',
-                        help='Path to the output CSV file')
+    parser.add_argument(
+        '-om', '--output-pkl', type=str, required=True,
+        dest='output_pkl', help='Path to the output PKL file')
 
     parser.add_argument(
-                        '-b',
-                        '--bands',
-                        type=str,
-                        nargs='*',
-                        required=False,
-                        dest='bands',
-                        help='Bands to store in CSV file',
-                        default=['CoastalBlue', 'Blue', 'Green', 'Yellow',
-                                 'Red', 'RedEdge', 'NIR1', 'NIR2'])
+        '-d', '--data-csv', type=str, required=False,
+        dest='data_csv', help='Path to the data CSV configuration file')
 
     parser.add_argument(
-                        '-s',
-                        '--step',
-                        type=str,
-                        nargs='*',
-                        required=True,
-                        dest='pipeline_step',
-                        help='Pipeline step to perform',
-                        default=['prepare', 'train', 'predict'],
-                        choices=['prepare', 'train', 'predict'])
+        '-tc', '--train-csv', type=str, required=True,
+        dest='train_csv', help='Path to the output CSV file')
 
-    parser.add_argument('-se',
-                        '--seed',
-                        type=int,
-                        required=False,
-                        dest='seed',
-                        default=42,
-                        help='Random SEED value')
+    parser.add_argument(
+        '-b', '--bands', type=str, nargs='*', required=False,
+        dest='bands', help='Bands to store in CSV file',
+        default=['CoastalBlue', 'Blue', 'Green', 'Yellow',
+                 'Red', 'RedEdge', 'NIR1', 'NIR2'])
 
-    parser.add_argument('-ts',
-                        '--test-size',
-                        type=float,
-                        required=False,
-                        dest='test_size',
-                        default=0.30,
-                        help='Test size rate (e.g .30)')
+    parser.add_argument(
+        '-s', '--step', type=str, nargs='*', required=True,
+        dest='pipeline_step', help='Pipeline step to perform',
+        default=['prepare', 'train', 'predict'],
+        choices=['prepare', 'train', 'predict'])
 
-    parser.add_argument('-nt',
-                        '--n-trees',
-                        type=int,
-                        required=False,
-                        dest='n_trees',
-                        default=20,
-                        help='Number of trees (e.g 20)')
+    parser.add_argument(
+        '-se', '--seed', type=int, required=False, dest='seed',
+        default=42, help='Random SEED value')
 
-    parser.add_argument('-mf',
-                        '--max-features',
-                        type=str,
-                        required=False,
-                        dest='max_feat',
-                        default='log2',
-                        help='Max features (e.g log2)')
+    parser.add_argument(
+        '-ts', '--test-size', type=float, required=False,
+        dest='test_size', default=0.30, help='Test size rate (e.g .30)')
 
-    parser.add_argument('-r',
-                        '--rasters',
-                        type=str,
-                        required=False,
-                        dest='rasters',
-                        default='*.tif',
-                        help='rasters to search for')
+    parser.add_argument(
+        '-nt', '--n-trees', type=int, required=False,
+        dest='n_trees', default=20, help='Number of trees (e.g 20)')
 
-    parser.add_argument('-ws',
-                        '--window-size',
-                        type=int,
-                        required=False,
-                        dest='ws',
-                        default=5120,
-                        help='Prediction window size (e.g 5120)')
+    parser.add_argument(
+        '-mf', '--max-features', type=str, required=False,
+        dest='max_feat', default='log2', help='Max features (e.g log2)')
 
-    parser.add_argument('-od',
-                        '--output-dir',
-                        type=str,
-                        required=False,
-                        dest='output_dir',
-                        default='',
-                        help='output directory')
+    parser.add_argument(
+        '-r', '--rasters', type=str, required=False, dest='rasters',
+        default='*.tif', help='rasters to search for')
+
+    parser.add_argument(
+        '-ws', '--window-size', type=int, required=False,
+        dest='ws', default=5120, help='Prediction window size (e.g 5120)')
+
+    parser.add_argument(
+        '-od', '--output-dir', type=str, required=False,
+        dest='output_dir', default='', help='output directory')
 
     args = parser.parse_args()
 

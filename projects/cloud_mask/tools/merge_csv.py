@@ -1,5 +1,6 @@
 import os
 import sys
+import glob
 import argparse
 import logging
 import pandas as pd
@@ -12,12 +13,12 @@ __status__ = "Production"
 def main():
 
     # Process command-line args.
-    desc = 'Use this application to modify CSV file.'
+    desc = 'Use this application to merge CSV files.'
     parser = argparse.ArgumentParser(description=desc)
 
     parser.add_argument(
-        '-i', '--input-csv', type=str, required=True,
-        dest='input_csv', help='Input CSV to modify')
+        '-i', '--input-dir', type=str, required=True,
+        dest='input_dir', help='Input directory where CSV are located')
 
     parser.add_argument(
         '-o', '--output-csv', type=str, required=True,
@@ -26,12 +27,6 @@ def main():
     parser.add_argument(
         '-ic', '--input-columns', type=str, nargs='*', required=False,
         dest='input_columns', help='Columns from input CSV',
-        default=['CoastalBlue', 'Blue', 'Green', 'Yellow',
-                 'Red', 'RedEdge', 'NIR1', 'NIR2', 'L'])
-
-    parser.add_argument(
-        '-oc', '--output-columns', type=str, nargs='*', required=False,
-        dest='output_columns', help='Columns for output CSV',
         default=['CoastalBlue', 'Blue', 'Green', 'Yellow',
                  'Red', 'RedEdge', 'NIR1', 'NIR2', 'L'])
 
@@ -52,14 +47,27 @@ def main():
     logger.addHandler(ch)
 
     # --------------------------------------------------------------------------------
-    # modify step
+    # merge step
     # --------------------------------------------------------------------------------
-    df = pd.read_csv(args.input_csv, names=args.input_bands)
-    df = df[args.output_bands]
+    df_list = list()
+    input_columns = args.input_columns
+    csv_files = glob.glob(os.path.join(args.input_dir, '*.csv'))
+
+    for filename in csv_files:
+        df_list.append(
+            pd.read_csv(
+                filename, index_col=None, header=None, names=input_columns)
+        )
+
+    # Concatenate all datasets
+    full_df = pd.concat(df_list, axis=0, ignore_index=True)
+
+    # Get the order of bands and move classes to last column
+    input_columns.append(input_columns.pop(input_columns.index('L')))
+    full_df = full_df[input_columns]
 
     # Save into file
-    logging.info(df)
-    df.to_csv(args.output_csv, index=False, header=False)
+    full_df.to_csv(args.output_csv, index=False, header=False)
 
     return
 
