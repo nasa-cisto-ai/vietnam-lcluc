@@ -18,7 +18,8 @@ import rasterio.features as riofeat
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier as sklRFC
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+from sklearn.metrics import accuracy_score, \
+    precision_score, recall_score, f1_score
 
 try:
     import cupy as cp
@@ -319,16 +320,22 @@ def main():
         if HAS_GPU:
             acc_score = accuracy_score(
                 y_test, rf_model.predict(x_test).to_array())
-            prf_score = precision_recall_fscore_support(
+            p_score = precision_score(
+                y_test, rf_model.predict(x_test).to_array())
+            r_score = recall_score(
+                y_test, rf_model.predict(x_test).to_array())
+            f_score = f1_score(
                 y_test, rf_model.predict(x_test).to_array())
         else:
-            acc_score = accuracy_score(
-                y_test, rf_model.predict(x_test))
-            prf_score = precision_recall_fscore_support(
-                y_test, rf_model.predict(x_test).to_array())
+            acc_score = accuracy_score(y_test, rf_model.predict(x_test))
+            p_score = precision_score(y_test, rf_model.predict(x_test))
+            r_score = recall_score(y_test, rf_model.predict(x_test))
+            f_score = f1_score(y_test, rf_model.predict(x_test))
 
-        logging.info(f'Training accuracy: {acc_score}')
-        logging.info(f'Precision, Recall, F-Score: {prf_score}')
+        logging.info(f'Test Accuracy:  {acc_score}')
+        logging.info(f'Test Precision: {p_score}')
+        logging.info(f'Test Recall:    {r_score}')
+        logging.info(f'Test F-Score:   {f_score}')
 
         # make output directory
         os.makedirs(
