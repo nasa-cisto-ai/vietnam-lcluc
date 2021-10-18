@@ -20,7 +20,6 @@ ARG LINUX_VER=ubuntu20.04
 ARG FROM_IMAGE=nvcr.io/nvidia/rapidsai/rapidsai
 
 # Import RAPIDS container as the BASE Image (cuda base image)
-# Ubuntu 20.04 image with CUDA 11.2 support
 FROM ${FROM_IMAGE}:cuda${CUDA_VER}-base-${LINUX_VER}
 
 # Adding ENV variables
