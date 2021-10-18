@@ -144,6 +144,11 @@ CB B G Y R RE NIR1 NIR2 FDI SI NDWI: cloud_training_8band_fdi_si_ndwi.csv
 2021-10-18 18:36:34; INFO; Model has been saved as /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/models/cloud_training_8band_fdi_si_ndwi/cloud_training_8band_fdi_si_ndwi.pkl
 ```
 
+### Random Forest Visualization
+
+```bash
+python rf_driver.py --step vis --output-pkl /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/models/cloud_training_4band_RGBNIR1/cloud_training_4band_RGBNIR1.pkl --bands R G B NIR1
+```
 ### Random Forest Prediction
 
 ```bash

@@ -144,7 +144,7 @@ def main():
         dest='data_csv', help='Path to the data CSV configuration file')
 
     parser.add_argument(
-        '-tc', '--train-csv', type=str, required=True,
+        '-tc', '--train-csv', type=str, required=False,
         dest='train_csv', help='Path to the output CSV file')
 
     parser.add_argument(
