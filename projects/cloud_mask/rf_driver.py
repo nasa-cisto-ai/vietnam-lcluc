@@ -402,7 +402,7 @@ def main():
         model = joblib.load(args.output_pkl)  # loading pkl in parallel
         logging.info(f'Loaded model {args.output_pkl}.')
 
-        logging.info(model.estimators_[0])
+        logging.info(dir(model))   # .estimators_[0])
         #    export_text(
         #        model.estimators_[0], spacing=3, decimals=3,
         #        feature_names=args.bands)
