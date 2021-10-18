@@ -22,4 +22,4 @@ build_nccs_lcluc_ubuntu20:
       --destination nasanccs/nccs-lcluc:2021.10
   only:
     changes:
-      $CI_PROJECT_DIR/requirements/Dockerfile
+      - ${CI_PROJECT_DIR}/requirements/Dockerfile

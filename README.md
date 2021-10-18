@@ -11,12 +11,12 @@ computing resources, particularly the PRISM GPU cluster.
 
 A system with NVIDIA GPUs is required to run the scripts located in this repository.
 
-- projects/cloud-mask: semantic segmentation of clouds
-- projects/crop-mapping: multi-class segmentation of land cover classes
+- projects/cloud_mask: semantic segmentation of clouds
+- projects/crop_mapping: multi-class segmentation of land cover classes
+- projects/tree_cover: semantic segmentation of trees
 
 ## References
 
 [1] Chollet, François; et all, Keras, (2015), GitHub repository, <https://github.com/keras-team/keras>.
 [2] Paszke, Adam; Gross, Sam; Chintala, Soumith; Chanan, Gregory; et all, PyTorch, (2016), GitHub repository, <https://github.com/pytorch/pytorch>.
 [3] Google Brain Team; et all, TensorFlow, (2015), GitHub repository, <https://github.com/tensorflow/tensorflow>.
-
