@@ -54,8 +54,8 @@ def main():
     # --------------------------------------------------------------------------------
     # modify step
     # --------------------------------------------------------------------------------
-    df = pd.read_csv(args.input_csv, names=args.input_bands)
-    df = df[args.output_bands]
+    df = pd.read_csv(args.input_csv, names=args.input_columns)
+    df = df[args.output_columns]
 
     # Save into file
     logging.info(df)

@@ -21,12 +21,26 @@
 ### Random Forest Preparation
 
 ```bash
-
+singularity shell --nv -B $NOBACKUP:$NOBACKUP,/att/gpfsfs/atrepo01/ILAB:/att/gpfsfs/atrepo01/ILAB /lscratch/jacaraba/vietnam-lcluc/container/nccs-lcluc python 
 ```
+
+/att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/labels
+
+
+cloud_training_4band_BGRNIR1.csv
+
+cloud_training_4band_RGBNIR1.csv
+```
+
+cloud_training_4band_BGRNIR1.csv
+CB B G Y R RE NIR1 NIR2 FDI SI NDWI L
+B G R NIR1
+
 
 ### Random Forest Pipeline
 
 ```bash
+python modify_csv.py --input-csv /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/labels/cloud_training.csv --output-csv /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/labels/cloud_training_4band_BGRNIR1.csv --input-columns CB B G Y R RE NIR1 NIR2 FDI SI NDWI L --output-columns B G R NIR1
 ```
 
 ### Random Forest Prediction
