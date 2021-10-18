@@ -21,6 +21,10 @@ from sklearn.ensemble import RandomForestClassifier as sklRFC
 from sklearn.metrics import accuracy_score, \
     precision_score, recall_score, f1_score
 
+import matplotlib.pyplot as plt
+from sklearn.tree import plot_tree
+from sklearn.tree import export_text
+
 try:
     import cupy as cp
     import cudf as cf
@@ -152,8 +156,8 @@ def main():
     parser.add_argument(
         '-s', '--step', type=str, nargs='*', required=True,
         dest='pipeline_step', help='Pipeline step to perform',
-        default=['prepare', 'train', 'predict'],
-        choices=['prepare', 'train', 'predict'])
+        default=['prepare', 'train', 'predict', 'vis'],
+        choices=['prepare', 'train', 'predict', 'vis'])
 
     parser.add_argument(
         '-se', '--seed', type=int, required=False, dest='seed',
@@ -388,6 +392,21 @@ def main():
             output_filename = os.path.join(args.output_dir, filename)
             toraster(rast=rast, prediction=prediction, output=output_filename)
             prediction = None  # unload between each iteration
+
+    # --------------------------------------------------------------------------------
+    # predict step
+    # --------------------------------------------------------------------------------
+    if "vis" in args.pipeline_step:
+
+        assert os.path.exists(args.output_pkl), f'{args.output_pkl} not found.'
+        model = joblib.load(args.output_pkl)  # loading pkl in parallel
+        logging.info(f'Loaded model {args.output_pkl}.')
+
+        logging.info(
+            export_text(
+                model.estimators_[0], spacing=3, decimals=3,
+                feature_names=args.bands)
+            )
 
     return
 
