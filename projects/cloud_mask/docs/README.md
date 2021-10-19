@@ -149,9 +149,11 @@ CB B G Y R RE NIR1 NIR2 FDI SI NDWI: cloud_training_8band_fdi_si_ndwi.csv
 ```bash
 python rf_driver.py --step vis --output-pkl /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/models/cloud_training_4band_RGBNIR1/cloud_training_4band_RGBNIR1.pkl --bands R G B NIR1
 ```
+
 ### Random Forest Prediction
 
 ```bash
+python rf_driver.py --step predict --output-pkl /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/models/cloud_training_4band_BGRNIR1/cloud_training_4band_BGRNIR1.pkl --output-dir /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/models/cloud_training_4band_RGBNIR1/predictions --rasters --window-size 8192
 ```
 
 ## Convolutional Neural Network

@@ -29,7 +29,7 @@ try:
     import cupy as cp
     import cudf as cf
     from cuml.ensemble import RandomForestClassifier as cumlRFC
-    from cupyx.scipy.ndimage import median_filter as cp_medfilter
+    from cupyx.scipy.ndimage import median_filter
     cp.random.seed(seed=None)
     HAS_GPU = True
 except ImportError:
@@ -379,6 +379,10 @@ def main():
             logging.info(f"Starting new prediction...{rast}")
             img = xr.open_rasterio(rast)
 
+            # TODO: Add function for selecting bands
+            img = img[:4, :, :]
+            logging.info(f'Modified image: {img.shape}')
+
             # crop ROI, from outside to inside based on pixel value
             img = np.clip(img, 0, 10000)
             prediction = predict(img, model, ws=[args.ws, args.ws])
@@ -388,8 +392,8 @@ def main():
 
             # median
             # with cp.cuda.Device(1):
-            #    prediction = cp_medfilter(cp.asarray(prediction), size=20)
-            # prediction = cp.asnumpy(prediction)
+            prediction = median_filter(cp.asarray(prediction), size=20)
+            prediction = cp.asnumpy(prediction)
 
             output_filename = os.path.join(args.output_dir, filename)
             toraster(rast=rast, prediction=prediction, output=output_filename)
