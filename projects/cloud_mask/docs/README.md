@@ -152,8 +152,15 @@ python rf_driver.py --step vis --output-pkl /att/gpfsfs/atrepo01/ILAB/projects/V
 
 ### Random Forest Prediction
 
+B G R NIR1: cloud_training_4band_BGRNIR1.csv
+
 ```bash
-python rf_driver.py --step predict --output-pkl /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/models/cloud_training_4band_BGRNIR1/cloud_training_4band_BGRNIR1.pkl --output-dir /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/models/cloud_training_4band_RGBNIR1/predictions --rasters --window-size 8192
+python rf_driver.py --step predict --output-pkl /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/models/cloud_training_4band_BGRNIR1/cloud_training_4band_BGRNIR1.pkl --output-dir /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/models/cloud_training_4band_RGBNIR1/predictions --rasters '/att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/data_keelin/*.tif' --window-size 8192
+```
+
+
+
+```bash
 ```
 
 ## Convolutional Neural Network

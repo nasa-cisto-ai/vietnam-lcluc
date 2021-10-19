@@ -17,7 +17,7 @@ build_nccs_lcluc_ubuntu20:
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$DOCKER_REGISTRY\":{\"username\":\"$DOCKER_USER\",\"password\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/requirements/Dockerfile --destination nasanccs/nccs-lcluc:2021.10
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/requirements/Dockerfile --destination nasanccs/nccs-lcluc:2021.10_cuda11.2_tensorflow
   only:
     changes:
       - requirements/Dockerfile
