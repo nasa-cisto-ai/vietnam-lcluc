@@ -3,6 +3,11 @@
 Random Forest and Convolutional Neural Network for Cloud Masking in
 World View Imagery
 
+## TODO
+
+- Move validation dataset to the proper location: /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Mary
+- Calculate indices on the fly for pandas dataframe
+
 ## Data
 
 - Project Directory: /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD
@@ -142,6 +147,12 @@ CB B G Y R RE NIR1 NIR2 FDI SI NDWI: cloud_training_8band_fdi_si_ndwi.csv
 2021-10-18 18:36:34; INFO; Test Recall:    0.999990004597885
 2021-10-18 18:36:34; INFO; Test F-Score:   0.9999450277609807
 2021-10-18 18:36:34; INFO; Model has been saved as /att/gpfsfs/atrepo01/ILAB/projects/Vietnam/Jordan/Vietnam_CLOUD/article/random_forest/models/cloud_training_8band_fdi_si_ndwi/cloud_training_8band_fdi_si_ndwi.pkl
+```
+
+LOCAL TRAINING
+
+```bash
+python rf_driver.py --step train --train-csv /Users/jacaraba/Desktop/development/ilab/vietnam-lcluc/data/cloud_training_4band_BGRNIR1.csv --seed 42 --test-size 0.20 --n-trees 20 --max-features log2 --output-pkl /Users/jacaraba/Desktop/development/ilab/vietnam-lcluc/data/cloud_training_4band_BGRNIR1.pkl
 ```
 
 ### Random Forest Visualization

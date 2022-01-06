@@ -408,11 +408,15 @@ def main():
         model = joblib.load(args.output_pkl)  # loading pkl in parallel
         logging.info(f'Loaded model {args.output_pkl}.')
 
-        logging.info(dir(model))   # .estimators_[0])
-        #    export_text(
-        #        model.estimators_[0], spacing=3, decimals=3,
-        #        feature_names=args.bands)
-        #    )
+        from dtreeviz.trees import dtreeviz
+
+        viz = dtreeviz(rf_model.estimators_[19], x_train, y_train,
+                    target_name="cloud category",
+                    feature_names=['b','g','r','nir1'],
+                    class_names=['cloud', 'not cloud'],
+                    title="20th decision tree - Cloud data")
+
+        viz.save("decision_tree_cloud.svg")
 
     return
 

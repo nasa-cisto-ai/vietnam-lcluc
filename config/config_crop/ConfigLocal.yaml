@@ -1,0 +1,44 @@
+#-----------------------------------------------------------------------
+# Configuration File for Senegal Cloud Mask
+#-----------------------------------------------------------------------
+experiment_name: '2021-08-11'
+
+#-----------------------------------------------------------------------
+# General Parameters
+#-----------------------------------------------------------------------
+data_csv: 'config/VietnamCropDatasetLocal.csv'
+data_output_dir: '/Users/jacaraba/Desktop/development/ilab/vietnam-lcluc/test'
+inference_output_dir: '/Users/jacaraba/Desktop/development/ilab/vietnam-lcluc/test/predictions'
+
+input_bands:
+  - Blue
+  - Green
+  - Red
+  - NIR
+  - BAI
+  - NDVI
+  - NDWI
+output_bands:
+  - Blue
+  - Green
+  - Red
+  - NIR
+  - BAI
+  - NDVI
+  - NDWI
+
+#-----------------------------------------------------------------------
+# Model Parameters
+#-----------------------------------------------------------------------
+seed: 22
+tile_size: 256
+n_classes: 7
+test_size: 0.20
+batch_size: 16
+max_epochs: 6000
+initial_epoch: 0
+
+#-----------------------------------------------------------------------
+# System Acceleration Parameters
+#-----------------------------------------------------------------------
+cuda_devices: 0,1,2,3
