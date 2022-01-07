@@ -20,6 +20,7 @@ dist/
 *.out
 *.npy
 *data/
+*.pyc
 
 # Ignore debugging and testing logs
 results/

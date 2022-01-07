@@ -2,24 +2,41 @@
 
 import os
 import sys
-from dataclasses import dataclass
+from typing import List
+from dataclasses import dataclass, field
 from omegaconf import OmegaConf
 
 @dataclass
 class ConfigTF:
 
+    dataset_csv: str
+    data_dir: str
+
     experiment_name: str = 'unet-cnn'
     seed: int = 24
+    gpu_devices: str = '0,1,2,3'
+    mixed_precision: bool = True
+    xla: bool = True
 
-    # setup YAML configuration settings
-    #self._file_assert(yaml_filename)
-    #self.yaml_file_path = yaml_filename
-    #self.read_yaml(yaml_filename)
+    input_bands: List[str] = field(
+        default_factory=lambda: ['Blue', 'Green', 'Red', 'NIR1', 'HOM1', 'HOM2'])
+    output_bands: List[str] = field(
+        default_factory=lambda: ['Blue', 'Green', 'Red', 'NIR1'])
 
-    # setup CSV data configuration settings
-    #self._file_assert(csv_filename)
-    #self.data_file_path = csv_filename
-    #self.read_csv(csv_filename)
+    tile_size: int = 256
+    include_classes: bool = False
+    augment: bool = True
+    batch_size: int = 32
+    n_classes: int = 1
+    test_size: float = 0.20
+
+    learning_rate: float = 0.0001
+    max_epochs: int = 6000
+
+    model_filename: str = 'model.h5'
+    inference_regex: str = '*.tif'
+    inference_save_dir: str = 'results'
+    window_size: int = 8120
 
     # set some strict hyperparameter attributes
     #self.seed = getattr(self, 'seed', 34)
@@ -94,6 +111,6 @@ if __name__ == "__main__":
     try:
         OmegaConf.merge(schema, conf)
     except BaseException as err:
-        sys.exit(f"ERROR: {err=}")
+        sys.exit(f"ERROR: {err}")
 
     sys.exit(conf)
