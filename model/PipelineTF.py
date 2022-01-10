@@ -473,6 +473,7 @@ class PipelineTF(object):
                 
                 else:
 
+                    window = np.clip(window, 0, 10000)
                     window = from_array(
                         window / 10000.0, (self.conf.tile_size,self.conf.tile_size),
                         overlap_factor=4, fill_mode='reflect')
