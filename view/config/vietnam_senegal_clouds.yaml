@@ -49,6 +49,7 @@ model_filename: /lscratch/jacaraba/vietnam-senegal-lcluc/clouds/model/46-0.04.hd
 #inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/WV02_20120130_M1BS_1030010011A30B00-toa_pansharpen_clip.tif'
 #inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/WV02_20130125_M1BS_103001001DD53500-toa_pansharpen_clip.tif'
 #inference_regex: '/att/nobackup/mcarrol2/LCLUC_Senegal/ForKonrad/*data.tif'
-inference_regex: '/adapt/nobackup/projects/ilab/projects/Senegal/Tapan_data/*.tif'
-inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/vhr-cloudmask-data/vietnam-senegal/results_mosaic
+#inference_regex: '/adapt/nobackup/projects/ilab/projects/Senegal/Tapan_data/*.tif'
+inference_regex: '/adapt/nobackup/projects/ilab/projects/Senegal/Tapan_data/Tappan12_WV02_20140925_M1BS_103001003775F400_data.tif'
+inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/vhr-cloudmask-data/vietnam-senegal/results_mosaic_v2
 window_size: 8192
