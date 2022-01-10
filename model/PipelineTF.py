@@ -322,7 +322,7 @@ class PipelineTF(object):
             if image[x: (x + tile_size), y: (y + tile_size), :].min() < 0:
                 continue
 
-            if image[x: (x + tile_size), y: (y + tile_size), :].min() < 0:
+            if label[x: (x + tile_size), y: (y + tile_size)].min() < 0:
                 continue
             
             if include and cp.unique(label[x: (x + tile_size), y: (y + tile_size)]).shape[0] < 2:
@@ -479,7 +479,7 @@ class PipelineTF(object):
                     window = window.get_fusion()
                     #print(prediction.shape, prediction.min(), prediction.max(), prediction.mean())
 
-                    window = np.squeeze(np.where(window > 0.90, 1, 0).astype(np.int16))
+                    window = np.squeeze(np.where(window > 0.50, 1, 0).astype(np.int16))
                     prediction[y0:y1, x0:x1] = window
         return prediction
 
