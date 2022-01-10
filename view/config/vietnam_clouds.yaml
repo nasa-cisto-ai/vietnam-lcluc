@@ -39,6 +39,7 @@ model_filename: /lscratch/jacaraba/vietnam-lcluc/clouds/model/23-0.05.hdf5
 # trouble -- inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/WV02_20110408_M1BS_103001000A5FE000-toa_pansharpen_clip.tif'
 #inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/WV02_20120130_M1BS_1030010011A30B00-toa_pansharpen_clip.tif'
 #inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/WV02_20130125_M1BS_103001001DD53500-toa_pansharpen_clip.tif'
-inference_regex: '/att/nobackup/mcarrol2/LCLUC_Senegal/ForKonrad/*data.tif'
+#inference_regex: '/att/nobackup/mcarrol2/LCLUC_Senegal/ForKonrad/*data.tif'
+inference_regex: '/adapt/nobackup/projects/ilab/projects/Senegal/Tapan_data/*.tif'
 inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/vhr-cloudmask-data/vietnam/results_mosaic
 window_size: 8192

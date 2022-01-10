@@ -203,22 +203,22 @@ class PipelineTF(object):
                 
                 prediction = self._sliding_window(image, model)
                 
-                #image = image.drop(dim="band", labels=image.coords["band"].values[1:], drop=True)
+                image = image.drop(dim="band", labels=image.coords["band"].values[1:], drop=True)
 
-                #prediction = xr.DataArray(
-                #    np.expand_dims(prediction, axis=-1),
-                #    name='mask',
-                #    coords=image.coords,
-                #    dims=image.dims,
-                #    attrs=image.attrs)
-                #print(prediction)
+                prediction = xr.DataArray(
+                    np.expand_dims(prediction, axis=-1),
+                    name='mask',
+                    coords=image.coords,
+                    dims=image.dims,
+                    attrs=image.attrs)
+                print(prediction)
 
-                #prediction.attrs['long_name'] = ('mask')
-                #prediction = prediction.transpose("band", "y", "x")
-                #prediction.rio.write_nodata(prediction.rio.nodata, encoded=True)
-                #prediction.rio.to_raster(save_image, BIGTIFF="IF_SAFER", compress='LZW')
+                prediction.attrs['long_name'] = ('mask')
+                prediction = prediction.transpose("band", "y", "x")
+                prediction.rio.write_nodata(prediction.rio.nodata, encoded=True)
+                prediction.rio.to_raster(save_image, BIGTIFF="IF_SAFER", compress='LZW')
 
-                #del prediction
+                del prediction
 
         #    # This is the case where the prediction was already saved
         #    else:
@@ -447,10 +447,6 @@ class PipelineTF(object):
         prediction = np.zeros(rast_shape)  # crop out the window
         print(f'wsize: {wsy}x{wsx}. Prediction shape: {prediction.shape}')
 
-        """
-        prediction = np.zeros(rast_shape)  # crop out the window
-        print(f'wsize: {wsx}x{wsy}. Prediction shape: {prediction.shape}')
-
         for sy in tqdm(range(0, rast_shape[0], wsy)):  # iterate over x-axis
             for sx in range(0, rast_shape[1], wsx):  # iterate over y-axis
                 y0, y1, x0, x1 = sy, sy + wsy, sx, sx + wsx  # assign window
@@ -466,8 +462,8 @@ class PipelineTF(object):
                 window = xraster[y0:y1, x0:x1, :].values  # get window
 
 
-                #if np.all(window == window[0,0,0]):
-                #    prediction[y0:y1, x0:x1] = window[:, :, 0]
+                if np.all(window == window[0,0,0]):
+                    prediction[y0:y1, x0:x1] = window[:, :, 0]
                 
                 else:
 
@@ -485,7 +481,6 @@ class PipelineTF(object):
 
                     window = np.squeeze(np.where(window > 0.90, 1, 0).astype(np.int16))
                     prediction[y0:y1, x0:x1] = window
-        """
         return prediction
 
 
