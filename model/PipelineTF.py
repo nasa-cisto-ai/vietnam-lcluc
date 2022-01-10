@@ -328,6 +328,12 @@ class PipelineTF(object):
             if include and cp.unique(label[x: (x + tile_size), y: (y + tile_size)]).shape[0] < 2:
                 continue
 
+            if len(np.unique(label[x: (x + tile_size), y: (y + tile_size)])) > 2:
+                print(np.unique(label[x: (x + tile_size), y: (y + tile_size)]))
+
+            if len(np.unique(image[x: (x + tile_size), y: (y + tile_size), :])) > 2:
+                print(np.unique(image[x: (x + tile_size), y: (y + tile_size), :]))
+
             # Add to the tiles counter
             generated_tiles += 1
 
@@ -469,7 +475,7 @@ class PipelineTF(object):
 
                     window = from_array(
                         window / 10000.0, (self.conf.tile_size,self.conf.tile_size),
-                        overlap_factor=2, fill_mode='reflect')
+                        overlap_factor=4, fill_mode='reflect')
                     #mosaic = from_array(
                     #    image.values / 10000.0, (256,256), overlap_factor=4, fill_mode='nearest')
                     print(f'The mosaic shape is {window.shape}')
