@@ -207,7 +207,7 @@ class PipelineTF(object):
 
                 prediction = self._denoise(np.uint8(prediction))
                 prediction = self._binary_fill(prediction)
-                prediction = self._grow(prediction)
+                prediction = self._grow(np.uint8(prediction))
                 
                 image = image.drop(dim="band", labels=image.coords["band"].values[1:], drop=True)
 
@@ -285,7 +285,7 @@ class PipelineTF(object):
         return cv2.morphologyEx(merged_mask, cv2.MORPH_OPEN, struct)
 
     def _binary_fill(self, merged_mask):
-        return binary_fill_holes(merged_mask).astype(int)
+        return binary_fill_holes(merged_mask)
 
     def to_tif(raster, filename: str, compress: str = 'LZW', crs: str = None):
         """
