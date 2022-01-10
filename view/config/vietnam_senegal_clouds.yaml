@@ -53,3 +53,5 @@ model_filename: /lscratch/jacaraba/vietnam-senegal-lcluc/clouds/model/46-0.04.hd
 inference_regex: '/adapt/nobackup/projects/ilab/projects/Senegal/Tapan_data/Tappan12_WV02_20140925_M1BS_103001003775F400_data.tif'
 inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/vhr-cloudmask-data/vietnam-senegal/results_mosaic_v2
 window_size: 8192
+inference_overlap: 2
+inference_treshold: 0.50

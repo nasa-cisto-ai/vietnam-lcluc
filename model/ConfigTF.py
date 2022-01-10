@@ -37,6 +37,8 @@ class ConfigTF:
     inference_regex: str = '*.tif'
     inference_save_dir: str = 'results'
     window_size: int = 8120
+    inference_overlap: int = 2
+    inference_treshold: float = 0.5
 
     # set some strict hyperparameter attributes
     #self.seed = getattr(self, 'seed', 34)

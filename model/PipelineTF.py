@@ -215,7 +215,10 @@ class PipelineTF(object):
 
                 prediction.attrs['long_name'] = ('mask')
                 prediction = prediction.transpose("band", "y", "x")
-                prediction.rio.write_nodata(prediction.rio.nodata, encoded=True)
+
+                nodata = prediction.rio.nodata
+                prediction = prediction.where(image != nodata)
+                prediction.rio.write_nodata(nodata, encoded=True, inplace=True)
                 prediction.rio.to_raster(save_image, BIGTIFF="IF_SAFER", compress='LZW')
 
                 del prediction
@@ -467,26 +470,20 @@ class PipelineTF(object):
 
                 window = xraster[y0:y1, x0:x1, :].values  # get window
 
-
                 if np.all(window == window[0,0,0]):
                     prediction[y0:y1, x0:x1] = window[:, :, 0]
                 
                 else:
-
                     window = np.clip(window, 0, 10000)
                     window = from_array(
                         window / 10000.0, (self.conf.tile_size,self.conf.tile_size),
-                        overlap_factor=4, fill_mode='reflect')
-                    #mosaic = from_array(
-                    #    image.values / 10000.0, (256,256), overlap_factor=4, fill_mode='nearest')
-                    print(f'The mosaic shape is {window.shape}')
+                        overlap_factor=self.conf.inference_overlap, fill_mode='reflect')
 
                     window = window.apply(
                         model.predict, progress_bar=True, batch_size=self.conf.batch_size)
                     window = window.get_fusion()
-                    #print(prediction.shape, prediction.min(), prediction.max(), prediction.mean())
-
-                    window = np.squeeze(np.where(window > 0.50, 1, 0).astype(np.int16))
+                    window = np.squeeze(
+                        np.where(window > self.conf.inference_treshold, 1, 0).astype(np.int16))
                     prediction[y0:y1, x0:x1] = window
         return prediction
 
