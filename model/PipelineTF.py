@@ -205,7 +205,7 @@ class PipelineTF(object):
                 
                 prediction = self._sliding_window(image, model)
 
-                prediction = self._denoise(prediction)
+                prediction = self._denoise(np.uint8(prediction))
                 prediction = self._binary_fill(prediction)
                 prediction = self._grow(prediction)
                 
