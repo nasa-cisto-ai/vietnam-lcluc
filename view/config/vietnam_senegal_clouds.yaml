@@ -4,7 +4,7 @@ gpu_devices: 0,1,2,3
 mixed_precision: False
 xla: False
 
-dataset_csv: ../config/config_clouds/vietnam_senegal_clouds.csv
+dataset_csv: ../config/vietnam_senegal_clouds.csv
 data_dir: /lscratch/jacaraba/vietnam-senegal-lcluc/clouds
 
 input_bands:
