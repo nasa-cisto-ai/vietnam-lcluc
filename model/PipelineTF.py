@@ -3,6 +3,7 @@ import sys
 import time
 import random
 import logging
+import cv2
 import cupy as cp
 import numpy as np
 import pandas as pd
@@ -18,6 +19,7 @@ from omegaconf.dictconfig import DictConfig
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.callbacks import TensorBoard, CSVLogger, ReduceLROnPlateau
+from scipy.ndimage import median_filter, binary_fill_holes
 
 from .ConfigTF import ConfigTF
 from .UNetTF import unet_batchnorm
@@ -202,6 +204,10 @@ class PipelineTF(object):
                 print(image.shape)
                 
                 prediction = self._sliding_window(image, model)
+
+                prediction = self._denoise(prediction)
+                prediction = self._binary_fill(prediction)
+                prediction = self._grow(prediction)
                 
                 image = image.drop(dim="band", labels=image.coords["band"].values[1:], drop=True)
 
@@ -269,6 +275,17 @@ class PipelineTF(object):
             print(f'Elapsed time is {time() - start} ms')
             return result
         return wrapper
+
+    def _grow(self, merged_mask, eps=120):
+        struct = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (eps, eps))
+        return cv2.morphologyEx(merged_mask, cv2.MORPH_CLOSE, struct)
+
+    def _denoise(self, merged_mask, eps=30):
+        struct = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (eps, eps))
+        return cv2.morphologyEx(merged_mask, cv2.MORPH_OPEN, struct)
+
+    def _binary_fill(self, merged_mask):
+        return binary_fill_holes(merged_mask).astype(int)
 
     def to_tif(raster, filename: str, compress: str = 'LZW', crs: str = None):
         """
