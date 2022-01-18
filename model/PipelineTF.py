@@ -185,7 +185,7 @@ class PipelineTF(object):
 
             save_image = \
                 os.path.join(self.conf.inference_save_dir, f'{Path(filename).stem}_clouds.tif')
-            print(save_image)
+            #print(save_image)
 
             if not os.path.isfile(save_image):
 
@@ -217,7 +217,7 @@ class PipelineTF(object):
                     coords=image.coords,
                     dims=image.dims,
                     attrs=image.attrs)
-                print(prediction)
+                #print(prediction)
 
                 prediction.attrs['long_name'] = ('mask')
                 prediction = prediction.transpose("band", "y", "x")
@@ -229,9 +229,9 @@ class PipelineTF(object):
 
                 del prediction
 
-        #    # This is the case where the prediction was already saved
-        #    else:
-        #        print(f'{save_image} already predicted.')
+            # This is the case where the prediction was already saved
+            else:
+                print(f'{save_image} already predicted.')
         return
 
     # ------------------------------------------------------------------

@@ -125,6 +125,7 @@ def main():
     precision = precision_score(all_sets_concat['mask'], all_sets_concat['val'])
     recall = recall_score(all_sets_concat['mask'], all_sets_concat['val'])
     jaccard = jaccard_score(all_sets_concat['mask'], all_sets_concat['val'])
+    confs = confusion_matrix(all_sets_concat['mask'], all_sets_concat['val'])
 
     print(all_sets_concat.index)
     print('cloud points:', all_sets_concat['mask'].sum())
@@ -132,6 +133,7 @@ def main():
     print(f'prec: {precision}')
     print(f'rec: {recall}')
     print(f'jacc: {jaccard}')
+    print(confs)
 
     return
 

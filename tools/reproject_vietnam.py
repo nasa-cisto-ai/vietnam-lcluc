@@ -8,7 +8,7 @@ from rasterio.warp import calculate_default_transform, reproject, Resampling
 
 #cnn_path = '/Users/jacaraba/Desktop/vietnam_cm_models/cloudmask_keelin_4bands_cnn/100_unet_viet_cm_4chann_std_Adadelta_256_0.0001_128_1000.h5/images/*'
 
-cnn_path = '/Users/jacaraba/Desktop/vietnam_cm_models/cloudmask_keelin_4bands_cnn/105_unet_viet_cm_4chann_std_Adam_512_0.0001_64_185.h5/images/*'
+cnn_path = '/Users/jacaraba/Desktop/results_mosaic_vietnam_v2/*.tif'
 fname_list = glob.glob(cnn_path)
 
 for filename in fname_list:
