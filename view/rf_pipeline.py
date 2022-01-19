@@ -474,7 +474,8 @@ def main():
                 img = modify_bands(
                     img, input_bands=['Blue', 'Green', 'Red', 'NIR1', 'HOM1', 'HOM2'],
                     output_bands=['Blue', 'Green', 'Red', 'NIR1'])
-                img = addindices(img, ['Blue', 'Green', 'Red', 'NIR1'], [fdi, si, ndwi], factor=10000.0)
+                print()
+                img, bands = addindices(img, ['Blue', 'Green', 'Red', 'NIR1'], [fdi, si, ndwi], factor=10000.0)
 
                 # crop ROI, from outside to inside based on pixel value
                 # img = np.clip(img, 0, 10000)
