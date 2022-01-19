@@ -26,6 +26,10 @@ from sklearn.ensemble import RandomForestClassifier as sklRFC
 from sklearn.metrics import accuracy_score, \
     precision_score, recall_score, f1_score
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
+from model.indices import addindices, fdi, si, ndwi, modify_bands
+
 #try:
 #    import cupy as cp
 #    #import cudf as cf
@@ -467,16 +471,21 @@ def main():
                 img = xr.open_rasterio(rast)
                 logging.info(f'Modified image: {img.shape}')
 
+                img = modify_bands(
+                    img, input_bands=['Blue', 'Green', 'Red', 'NIR1', 'HOM1', 'HOM2'],
+                    output_bands=['Blue', 'Green', 'Red', 'NIR1'])
+                img = addindices(img, ['Blue', 'Green', 'Red', 'NIR1'], [fdi, si, ndwi], factor=10000.0)
+
                 # crop ROI, from outside to inside based on pixel value
-                img = np.clip(img, 0, 10000)
+                # img = np.clip(img, 0, 10000)
                 prediction = predict(img, model, ws=[args.ws, args.ws])
 
                 # sieve
                 riofeat.sieve(prediction, 800, prediction, None, 8)
 
                 # median
-                prediction = median_filter(cp.asarray(prediction), size=20)
-                prediction = cp.asnumpy(prediction)
+                #prediction = median_filter(cp.asarray(prediction), size=20)
+                #prediction = cp.asnumpy(prediction)
 
                 toraster(
                     rast=rast, prediction=prediction, output=output_filename)
