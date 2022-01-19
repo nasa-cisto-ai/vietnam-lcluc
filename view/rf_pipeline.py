@@ -141,7 +141,7 @@ def main():
         '--gpu', dest='has_gpu', action='store_true', default=False)
 
     parser.add_argument(
-        '--output-model', type=str, required=False,
+        '--output-model', type=str, default='output.pkl', required=False,
         dest='output_pkl', help='Path to the output PKL file (.pkl)')
 
     parser.add_argument(
@@ -300,7 +300,8 @@ def main():
         # 1. Read data csv file
         # ----------------------------------------------------------------------------
         assert os.path.exists(args.train_csv), f'{args.train_csv} not found.'
-        data_df = pd.read_csv(args.train_csv, sep=',')
+        data_df = pd.read_csv(args.train_csv, sep=',', names=['Blue','Green','Red','NIR1','FDI','SI','NDWI','Class'])
+        #data_df = pd.read_csv(args.train_csv, sep=',', names=['Blue','Green','Red','NIR1','Class'])
         assert not data_df.isnull().values.any(), f'Na found: {args.train_csv}'
         logging.info(f'Open {args.train_csv} dataset for training.')
 
@@ -312,6 +313,9 @@ def main():
         # split dataset, fix type
         x = data_df.iloc[:, :-1].astype(np.float32)
         y = data_df.iloc[:, -1].astype(np.int8)
+
+        #x = x.head(10)
+        #y = y.head(10)
 
         # split data into training and test
         x_train, x_test, y_train, y_test = train_test_split(
@@ -403,6 +407,36 @@ def main():
             logging.info(f'Model has been saved as {args.output_pkl}')
         except Exception as e:
             logging.error(f'ERROR: {e}')
+
+        #import shap
+        #import copy
+
+        # explain the model's predictions using SHAP
+        # (same syntax works for LightGBM, CatBoost, scikit-learn, transformers, Spark, etc.)
+        """
+        explainer = shap.TreeExplainer(rf_model)
+        shap_values = explainer(x_test)
+        shap_values2 = copy.deepcopy(shap_values)
+        shap_values2.values = shap_values2.values[:,:,1]
+        shap_values2.base_values = shap_values2.base_values[:,1]
+        shap.plots.beeswarm(shap_values2)
+        """
+
+        #print(shap_values.shape)
+        #shap.plots.beeswarm(shap_values)
+
+        #shap_values = shap.TreeExplainer(rf_model).shap_values(x_test)
+        #shap.plots.beeswarm(shap_values)
+        #shap.summary_plot(shap_values, x_train)
+        #shap.plots.beeswarm(shap_values)
+
+        #shap.summary_plot(shap_values, x_train, plot_type="bar")
+        #print(shap_values)
+
+        #import matplotlib.pyplot as plt
+        #f = plt.figure()
+        #shap.summary_plot(shap_values, x_train)
+        #f.savefig("summary_plot1.png", bbox_inches='tight', dpi=600)
 
     # --------------------------------------------------------------------------------
     # predict step
