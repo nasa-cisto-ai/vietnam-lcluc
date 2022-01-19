@@ -28,7 +28,7 @@ from sklearn.metrics import accuracy_score, \
 
 try:
     import cupy as cp
-    import cudf as cf
+    #import cudf as cf
     from cuml.ensemble import RandomForestClassifier as cumlRFC
     from cuml.dask.ensemble import RandomForestClassifier as cumlRFC_mg
     from cupyx.scipy.ndimage import median_filter
