@@ -26,16 +26,16 @@ from sklearn.ensemble import RandomForestClassifier as sklRFC
 from sklearn.metrics import accuracy_score, \
     precision_score, recall_score, f1_score
 
-try:
-    import cupy as cp
-    #import cudf as cf
-    #from cuml.ensemble import RandomForestClassifier as cumlRFC
-    #from cuml.dask.ensemble import RandomForestClassifier as cumlRFC_mg
-    #from cupyx.scipy.ndimage import median_filter
-    cp.random.seed(seed=None)
-    HAS_GPU = True
-except ImportError:
-    HAS_GPU = False
+#try:
+#    import cupy as cp
+#    #import cudf as cf
+#    #from cuml.ensemble import RandomForestClassifier as cumlRFC
+#    #from cuml.dask.ensemble import RandomForestClassifier as cumlRFC_mg
+#    #from cupyx.scipy.ndimage import median_filter
+#    cp.random.seed(seed=None)
+#    HAS_GPU = True
+#except ImportError:
+#    HAS_GPU = False
 
 __author__ = "Jordan A Caraballo-Vega, Science Data Processing Branch"
 __email__ = "jordan.a.caraballo-vega@nasa.gov"
