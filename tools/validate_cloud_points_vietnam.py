@@ -45,10 +45,12 @@ def get_values(val_df, data_path):
 
         if raster_regex == 'Keelin17_20091230' or raster_regex == 'Keelin18_20091230':
             mask_filename = os.path.join(
-                data_path, f'{raster_regex.capitalize()}_data_a_clouds.epsg4326.tif')
+                data_path, f'{raster_regex.capitalize()}_data_a.epsg4326.tif')
+            #    data_path, f'{raster_regex.capitalize()}_data_a_clouds.epsg4326.tif')
         else:
             mask_filename = os.path.join(
-                data_path, f'{raster_regex.capitalize()}_data_clouds.epsg4326.tif')
+                data_path, f'{raster_regex.capitalize()}_data.epsg4326.tif')
+            #    data_path, f'{raster_regex.capitalize()}_data_clouds.epsg4326.tif')
 
         raster_data = xr.open_rasterio(mask_filename)
         raster_data = raster_data[0, :, :]
@@ -87,6 +89,9 @@ def main(validation_csv, data_path):
     print(f'rec: {recall}')
     print(f'jacc: {jaccard}')
 
+    confs = confusion_matrix(points_df[visual_validation], points_df[mask_validation])
+    print(confs)
+
 
 # -------------------------------------------------------------------------------
 # main
@@ -98,7 +103,8 @@ if __name__ == "__main__":
     validation_csv = '/Users/jacaraba/Desktop/CURRENT_PROJECTS/LCLUC_Vietnam/vietnam_cm_models/validation/keelin_validation.csv'
 
     # Data filenames
-    data_path = '/Users/jacaraba/Desktop/results_mosaic_vietnam_v2'
+    # data_path = '/Users/jacaraba/Desktop/results_mosaic_vietnam_v2'
+    data_path = '/Users/jacaraba/Desktop/cloud_training_4band_rgb_fdi_si_ndwi'
 
     # Random Forest data paths
     #data_paths = {

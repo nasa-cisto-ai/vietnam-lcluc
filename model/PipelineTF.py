@@ -28,6 +28,29 @@ from .Mosaic import from_array
 CHUNKS = {'band': 'auto', 'x': 'auto', 'y': 'auto'}
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
+class TverskyLoss(tf.keras.losses.Loss):
+
+    def call(self, y_true, y_pred, beta=0.7):
+        numerator = tf.reduce_sum(y_true * y_pred)
+        denominator = y_true * y_pred + beta * (1 - y_true) * y_pred + (1 - beta) * y_true * (1 - y_pred)
+        r = 1 - (numerator + 1) / (tf.reduce_sum(denominator) + 1)
+        return tf.cast(r, tf.float32)
+        #y_pred = tf.convert_to_tensor_v2(y_pred)
+        #y_true = tf.cast(y_true, y_pred.dtype)
+        #return tf.reduce_mean(math_ops.square(y_pred - y_true), axis=-1)
+
+
+def tversky_loss(y_true, y_pred, beta=0.7):
+    """ Tversky index (TI) is a generalization of Dice’s coefficient. TI adds a weight to FP (false positives) and FN (false negatives). """
+    def tversky_loss(y_true, y_pred):
+        numerator = tf.reduce_sum(y_true * y_pred)
+        denominator = y_true * y_pred + beta * (1 - y_true) * y_pred + (1 - beta) * y_true * (1 - y_pred)
+
+        r = 1 - (numerator + 1) / (tf.reduce_sum(denominator) + 1)
+        return tf.cast(r, tf.float32)
+
+    return tf.numpy_function(tversky_loss, [y_true, y_pred], tf.float32)
+
 class PipelineTF(object):
 
     def __init__(self, conf: DictConfig):
@@ -131,7 +154,8 @@ class PipelineTF(object):
 
             optimizer = tf.keras.optimizers.Adam(self.conf.learning_rate)
             metrics = ["acc", tf.keras.metrics.Recall(), tf.keras.metrics.Precision(), self._iou]
-            model.compile(loss="binary_crossentropy", optimizer=optimizer, metrics=metrics)
+            #model.compile(loss="binary_crossentropy", optimizer=optimizer, metrics=metrics)
+            model.compile(loss=TverskyLoss(), optimizer=optimizer, metrics=metrics)
             model.summary()
 
             callbacks = [
@@ -171,7 +195,11 @@ class PipelineTF(object):
 
         with self._gpu_strategy.scope():
             model = tf.keras.models.load_model(
-                self.conf.model_filename, custom_objects={"_iou":self._iou})
+                self.conf.model_filename, custom_objects={
+                    "_iou": self._iou,
+                    "TverskyLoss": TverskyLoss()
+                    }
+                )
             model.summary()  # print summary of the model
 
         os.makedirs(self.conf.inference_save_dir, exist_ok=True)
@@ -259,14 +287,18 @@ class PipelineTF(object):
         for new_dir in dirs:
             os.makedirs(new_dir, exist_ok=True)
 
-    def _iou(self, y_true, y_pred):
+    def _iou(self, y_true, y_pred, smooth=1e-15):
         def f(y_true, y_pred):
             intersection = (y_true * y_pred).sum()
             union = y_true.sum() + y_pred.sum() - intersection
-            x = (intersection + 1e-15) / (union + 1e-15)
+            x = (intersection + smooth) / (union + smooth)
             x = x.astype(np.float32)
             return x
         return tf.numpy_function(f, [y_true, y_pred], tf.float32)
+
+    #Keras
+    def _iou_loss(self, y_true, y_pred, smooth=1e-15):
+        return 1 - self._iou(y_true, y_pred)
 
     def timeit(func):
         def wrapper(*args, **kwargs):
@@ -351,8 +383,8 @@ class PipelineTF(object):
             if len(np.unique(label[x: (x + tile_size), y: (y + tile_size)])) > 2:
                 print(np.unique(label[x: (x + tile_size), y: (y + tile_size)]))
 
-            if len(np.unique(image[x: (x + tile_size), y: (y + tile_size), :])) > 2:
-                print(np.unique(image[x: (x + tile_size), y: (y + tile_size), :]))
+            #if len(np.unique(image[x: (x + tile_size), y: (y + tile_size), :])) > 2:
+            #    print(np.unique(image[x: (x + tile_size), y: (y + tile_size), :]))
 
             # Add to the tiles counter
             generated_tiles += 1
@@ -395,6 +427,9 @@ class PipelineTF(object):
 
     def _read_data(self, x, y):
         x = np.load(x) / 10000.0
+        #x = np.load(x)
+        #for i in range(x.shape[-1]):  # for each channel in images
+        #    x[:, :, i] = (x[:, :, i] - np.mean(x[:, :, i])) / (np.std(x[:, :, i]) + 1e-8)
         y = np.expand_dims(np.load(y), axis=-1)
         return x.astype(np.float32), y.astype(np.float32)
 
@@ -495,6 +530,9 @@ class PipelineTF(object):
                     window = from_array(
                         window / 10000.0, (self.conf.tile_size,self.conf.tile_size),
                         overlap_factor=self.conf.inference_overlap, fill_mode='reflect')
+                    #window = from_array(
+                    #    window, (self.conf.tile_size,self.conf.tile_size),
+                    #    overlap_factor=self.conf.inference_overlap, fill_mode='reflect')
 
                     window = window.apply(
                         model.predict, progress_bar=True, batch_size=self.conf.batch_size)
@@ -503,7 +541,6 @@ class PipelineTF(object):
                         np.where(window > self.conf.inference_treshold, 1, 0).astype(np.int16))
                     prediction[y0:y1, x0:x1] = window
         return prediction
-
 
 # -----------------------------------------------------------------------
 # Invoke the main

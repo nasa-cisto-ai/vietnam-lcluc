@@ -135,6 +135,10 @@ class MightyMosaic(np.ndarray):
             min_index = batch_index * batch_size
             max_index = min(min_index + batch_size, len(index) + 1)
             batch = np.array([self[i, j] for i, j in index[min_index:max_index]])
+
+            #for item in range(batch.shape[0]):
+            #    for i in range(batch.shape[-1]):  # for each channel in images
+            #        batch[item, :, :, i] = (batch[item, :, :, i] - np.mean(batch[item, :, :, i])) / (np.std(batch[item, :, :, i]) + 1e-8)
             
             batch = tf.data.Dataset.from_tensor_slices(np.expand_dims(batch, axis=0))
             batch = batch.with_options(self.options)
