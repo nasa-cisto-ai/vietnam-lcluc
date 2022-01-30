@@ -373,13 +373,18 @@ class PipelineTF(object):
             x = random.randint(0, image.shape[0] - tile_size)
             y = random.randint(0, image.shape[1] - tile_size)
 
+            # fix later
+
             # Bool values for conditional statement
-            if image[x: (x + tile_size), y: (y + tile_size), :].min() < 0:
+            #if image[x: (x + tile_size), y: (y + tile_size), :].min() < 0:
+            #    continue
+
+            #if label[x: (x + tile_size), y: (y + tile_size)].min() < 0:
+            #    continue
+
+            if label[x: (x + tile_size), y: (y + tile_size)].max() > 7:
                 continue
 
-            if label[x: (x + tile_size), y: (y + tile_size)].min() < 0:
-                continue
-            
             if include and cp.unique(label[x: (x + tile_size), y: (y + tile_size)]).shape[0] < 2:
                 continue
 
