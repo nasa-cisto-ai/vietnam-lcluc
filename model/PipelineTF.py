@@ -523,7 +523,10 @@ class PipelineTF(object):
 
                 window = xraster[y0:y1, x0:x1, :].values  # get window
 
+                print("First value of window: ", window[0,0,0])
+
                 if np.all(window == window[0,0,0]):
+                    print("skipping, everything was nodata")
                     prediction[y0:y1, x0:x1] = window[:, :, 0]
                 
                 else:
