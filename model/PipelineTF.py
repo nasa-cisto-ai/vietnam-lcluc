@@ -233,10 +233,11 @@ class PipelineTF(object):
                 print(image.shape)
                 
                 prediction = self._sliding_window(image, model)
+                print(np.unique(prediction))
 
-                prediction = self._denoise(np.uint8(prediction))
-                prediction = self._binary_fill(prediction)
-                prediction = self._grow(np.uint8(prediction))
+                #prediction = self._denoise(np.uint8(prediction))
+                #prediction = self._binary_fill(prediction)
+                #prediction = self._grow(np.uint8(prediction))
                 
                 image = image.drop(dim="band", labels=image.coords["band"].values[1:], drop=True)
 
