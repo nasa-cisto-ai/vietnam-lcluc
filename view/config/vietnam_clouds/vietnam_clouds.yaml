@@ -52,7 +52,7 @@ max_epochs: 6000
 #window_size: 8192
 
 model_filename: /adapt/nobackup/projects/ilab/projects/VHRCloudMask/Vietnam/cnn/models/23-0.05-vietnam-only-10000norm-binarycross.hdf5
-inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/WV02_20180207_M1BS_1030010076B2F400-toa_pansharpen_clip.tif'
+inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/*.tif'
 inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/cloud_mask
 window_size: 8192
 inference_overlap: 2

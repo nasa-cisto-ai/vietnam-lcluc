@@ -142,7 +142,7 @@ class MightyMosaic(np.ndarray):
             
             batch = tf.data.Dataset.from_tensor_slices(np.expand_dims(batch, axis=0))
             batch = batch.with_options(self.options)
-            batch = function(batch)
+            batch = function(batch, batch_size=batch_size)
 
             for element_index, (i, j) in enumerate(index[min_index:max_index]):
                 patchs.append((i, j, batch[element_index]))
