@@ -55,3 +55,5 @@ model_filename: /adapt/nobackup/projects/ilab/projects/VHRCloudMask/Vietnam/cnn/
 inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/*.tif'
 inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/cloud_mask
 window_size: 8192
+inference_overlap: 2
+inference_treshold: 0.50
