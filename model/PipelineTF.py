@@ -438,7 +438,8 @@ class PipelineTF(object):
         #x = np.load(x)
         #for i in range(x.shape[-1]):  # for each channel in images
         #    x[:, :, i] = (x[:, :, i] - np.mean(x[:, :, i])) / (np.std(x[:, :, i]) + 1e-8)
-        y = np.expand_dims(np.load(y), axis=-1).astype(np.float32)
+        #y = np.expand_dims(np.load(y), axis=-1).astype(np.float32)
+        y = np.load(y).astype(np.float32)
         y = tf.one_hot(y, 7)
         return x.astype(np.float32)
 
