@@ -155,9 +155,9 @@ class PipelineTF(object):
             optimizer = tf.keras.optimizers.Adam(self.conf.learning_rate)
             metrics = ["acc", tf.keras.metrics.Recall(), tf.keras.metrics.Precision(), self._iou]
             # model.compile(loss="binary_crossentropy", optimizer=optimizer, metrics=metrics)
-            model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=metrics)
+            #model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=metrics)
             # tf.keras.losses.SparseCategoricalCrossentropy()
-            #model.compile(loss=TverskyLoss(), optimizer=optimizer, metrics=metrics)
+            model.compile(loss=TverskyLoss(), optimizer=optimizer, metrics=metrics)
             model.summary()
 
             callbacks = [
@@ -440,8 +440,11 @@ class PipelineTF(object):
         #for i in range(x.shape[-1]):  # for each channel in images
         #    x[:, :, i] = (x[:, :, i] - np.mean(x[:, :, i])) / (np.std(x[:, :, i]) + 1e-8)
         #y = np.expand_dims(np.load(y), axis=-1).astype(np.float32)
-        y = np.load(y).astype(np.float32)
-        y = tf.one_hot(y, 7)
+        y = np.load(y)
+        y = tf.keras.utils.to_categorical(
+            y, num_classes=7, dtype='float32'
+        )
+        #y = tf.one_hot(y, 7)
         return x.astype(np.float32)
 
     def _dataset_preprocessing(self, x, y):
