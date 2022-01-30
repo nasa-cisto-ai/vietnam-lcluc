@@ -31,9 +31,9 @@ output_bands:
   - Green
   - Red
   - NIR1
-  - BAI
-  - NDVI
-  - NDWI
+#  - BAI
+#  - NDVI
+#  - NDWI
 
 tile_size: 512
 include_classes: False
