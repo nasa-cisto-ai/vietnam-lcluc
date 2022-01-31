@@ -233,7 +233,8 @@ class PipelineTF(object):
                     output_bands=self.conf.output_bands)
                 #print(image.shape)
                 
-                prediction = self._sliding_window(image, model)
+                # prediction = self._sliding_window(image, model)
+                prediction = self._sliding_window_v2(image, model)
                 #print(np.unique(prediction))
 
                 #prediction = self._denoise(np.uint8(prediction))
@@ -383,7 +384,8 @@ class PipelineTF(object):
             #if label[x: (x + tile_size), y: (y + tile_size)].min() < 0:
             #    continue
 
-            if label[x: (x + tile_size), y: (y + tile_size)].max() > 7:
+            if label[x: (x + tile_size), y: (y + tile_size)].max() > self.conf.n_classes or \
+                label[x: (x + tile_size), y: (y + tile_size)].min() < 0:
                 continue
 
             if include and cp.unique(label[x: (x + tile_size), y: (y + tile_size)]).shape[0] < 2:
@@ -564,6 +566,33 @@ class PipelineTF(object):
                         window = np.squeeze(
                             np.where(window > self.conf.inference_treshold, 1, 0).astype(np.int16))
                     prediction[y0:y1, x0:x1] = window
+        return prediction
+
+    def _sliding_window_v2(self, xraster, model):
+
+        # open rasters and get both data and coordinates
+        rast_shape = xraster[:, :, 0].shape  # shape of the wider scene
+        prediction = np.zeros(rast_shape)  # crop out the window
+
+        window = xraster.values  # get window
+        window = np.clip(window, 0, 10000)
+        window = from_array(
+            window / 10000.0, (self.conf.tile_size,self.conf.tile_size),
+            overlap_factor=self.conf.inference_overlap, fill_mode='reflect')
+
+        window = window.apply(
+            model.predict, progress_bar=True, batch_size=self.conf.batch_size)
+        window = window.get_fusion()
+
+        #print("After predict: ", window.shape)
+
+        if self.conf.n_classes > 1:
+            window = np.squeeze(np.argmax(window, axis=-1)).astype(np.int16)
+        else:
+            window = np.squeeze(
+                np.where(window > self.conf.inference_treshold, 1, 0).astype(np.int16))
+        
+        prediction = window
         return prediction
 
 # -----------------------------------------------------------------------
