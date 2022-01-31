@@ -443,6 +443,7 @@ class PipelineTF(object):
         #    x[:, :, i] = (x[:, :, i] - np.mean(x[:, :, i])) / (np.std(x[:, :, i]) + 1e-8)
         #y = np.expand_dims(np.load(y), axis=-1).astype(np.float32)
         y = np.load(y)
+        print(y.shape)
         y = tf.keras.utils.to_categorical(
             y, num_classes=self.conf.n_classes, dtype='float32'
         )
