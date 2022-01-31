@@ -155,9 +155,9 @@ class PipelineTF(object):
             optimizer = tf.keras.optimizers.Adam(self.conf.learning_rate)
             metrics = ["acc", tf.keras.metrics.Recall(), tf.keras.metrics.Precision(), self._iou]
             # model.compile(loss="binary_crossentropy", optimizer=optimizer, metrics=metrics)
-            model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=metrics)
+            #model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=metrics)
             # tf.keras.losses.SparseCategoricalCrossentropy()
-            #model.compile(loss=TverskyLoss(), optimizer=optimizer, metrics=metrics)
+            model.compile(loss=TverskyLoss(), optimizer=optimizer, metrics=metrics)
             model.summary()
 
             callbacks = [
