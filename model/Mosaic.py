@@ -88,6 +88,7 @@ class MightyMosaic(np.ndarray):
         return array
 
     def find_best_divisor(self, size, low, high, step=1):
+        #print(size, divisor, size % divisor)
         minimal_truncation, best_divisor = min((size % divisor, divisor)
             for divisor in range(low, high, step))
         return best_divisor
@@ -119,7 +120,7 @@ class MightyMosaic(np.ndarray):
 
         if self.shape[0] * self.shape[1] / batch_size != self.shape[0] * self.shape[1] // batch_size:
             batch_size = self.find_best_divisor(
-                size=self.shape[0] * self.shape[1], low=64, high=batch_size, step=1)
+                size=self.shape[0] * self.shape[1], low=32, high=batch_size, step=1)
 
         assert self.shape[0] * self.shape[1] / batch_size == self.shape[0] * self.shape[1] // batch_size, \
             f'You have {self.shape[0] * self.shape[1]} tiles but a batch_size of {batch_size}.' \
