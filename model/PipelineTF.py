@@ -551,6 +551,8 @@ class PipelineTF(object):
                     #    window, (self.conf.tile_size,self.conf.tile_size),
                     #    overlap_factor=self.conf.inference_overlap, fill_mode='reflect')
 
+                    print(window.shape, "After from array")
+
                     window = window.apply(
                         model.predict, progress_bar=True, batch_size=self.conf.batch_size)
                     window = window.get_fusion()
