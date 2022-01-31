@@ -435,17 +435,16 @@ class PipelineTF(object):
         return data_filenames
 
     def _read_data(self, x, y):
-        x = np.load(x) / 10000.0
+        x = (np.load(x) / 10000.0).astype(np.float32)
         #x = np.load(x)
         #for i in range(x.shape[-1]):  # for each channel in images
         #    x[:, :, i] = (x[:, :, i] - np.mean(x[:, :, i])) / (np.std(x[:, :, i]) + 1e-8)
         #y = np.expand_dims(np.load(y), axis=-1).astype(np.float32)
         y = np.load(y)
         y = tf.keras.utils.to_categorical(
-            y, num_classes=7, dtype='float32'
+            y, num_classes=self.conf.n_classes, dtype='float32'
         )
-        #y = tf.one_hot(y, 7)
-        return x.astype(np.float32), y
+        return x, y
 
     def _dataset_preprocessing(self, x, y):
         def _loader(x, y):
@@ -536,7 +535,7 @@ class PipelineTF(object):
 
                 window = xraster[y0:y1, x0:x1, :].values  # get window
 
-                print("First value of window: ", window[0,0,0])
+                #print("First value of window: ", window[0,0,0])
 
                 if np.all(window == window[0,0,0]):
                     print("skipping, everything was nodata")
@@ -551,13 +550,13 @@ class PipelineTF(object):
                     #    window, (self.conf.tile_size,self.conf.tile_size),
                     #    overlap_factor=self.conf.inference_overlap, fill_mode='reflect')
 
-                    print(window.shape, "After from array")
+                    #print(window.shape, "After from array")
 
                     window = window.apply(
                         model.predict, progress_bar=True, batch_size=self.conf.batch_size)
                     window = window.get_fusion()
 
-                    print("After predict: ", window.shape)
+                    #print("After predict: ", window.shape)
 
                     if self.conf.n_classes > 1:
                         window = np.squeeze(np.argmax(window, axis=-1)).astype(np.int16)
