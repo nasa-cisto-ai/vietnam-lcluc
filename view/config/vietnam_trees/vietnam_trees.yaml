@@ -1,11 +1,11 @@
-experiment_name: vietnam-crop
+experiment_name: vietnam-trees
 seed: 42
 gpu_devices: 0,1,2,3
 mixed_precision: False
 xla: False
 
-dataset_csv: config/vietnam_crop/vietnam_crop.csv
-data_dir: /lscratch/jacaraba/vietnam-lcluc/crop-categorical
+dataset_csv: config/vietnam_crop/vietnam_trees.csv
+data_dir: /lscratch/jacaraba/vietnam-lcluc/trees
 
 #input_bands:
 #  - CoastalBlue
@@ -22,9 +22,8 @@ input_bands:
   - Green
   - Red
   - NIR1
-  - BAI
-  - NDVI
-  - NDWI
+  - HOM1
+  - HOM2
 
 output_bands:
   - Blue
@@ -35,11 +34,11 @@ output_bands:
 #  - NDVI
 #  - NDWI
 
-tile_size: 256
+tile_size: 512
 include_classes: False
 augment: True
-batch_size: 128
-n_classes: 7
+batch_size: 32
+n_classes: 6
 test_size: 0.20
 learning_rate: 0.0001
 max_epochs: 6000
