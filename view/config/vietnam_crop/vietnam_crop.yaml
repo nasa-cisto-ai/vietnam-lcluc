@@ -22,9 +22,9 @@ input_bands:
   - Green
   - Red
   - NIR1
-  - BAI
-  - NDVI
-  - NDWI
+#  - BAI
+#  - NDVI
+#  - NDWI
 
 output_bands:
   - Blue
