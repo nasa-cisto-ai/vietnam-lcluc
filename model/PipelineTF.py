@@ -554,8 +554,14 @@ class PipelineTF(object):
                     window = window.apply(
                         model.predict, progress_bar=True, batch_size=self.conf.batch_size)
                     window = window.get_fusion()
-                    window = np.squeeze(
-                        np.where(window > self.conf.inference_treshold, 1, 0).astype(np.int16))
+
+                    print("After predict: ", window.shape)
+
+                    if self.conf.n_classes > 1:
+                        window = np.squeeze(np.argmax(window, axis=-1)).astype(np.int16)
+                    else:
+                        window = np.squeeze(
+                            np.where(window > self.conf.inference_treshold, 1, 0).astype(np.int16))
                     prediction[y0:y1, x0:x1] = window
         return prediction
 
