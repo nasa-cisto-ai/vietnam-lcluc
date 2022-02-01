@@ -98,6 +98,8 @@ class PipelineTF(object):
             image = cp.asarray(image.values)
             label = cp.asarray(label)
 
+            label[label == 6] = 5
+
             # Move from chw to hwc, squeze mask if required
             image = cp.moveaxis(image, 0, -1).astype(np.int16)
             label = cp.squeeze(label) if len(label.shape) != 2 else label
