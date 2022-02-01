@@ -236,7 +236,7 @@ class PipelineTF(object):
                 #print(image.shape)
                 
                 # prediction = self._sliding_window(image, model)
-                prediction = self._sliding_window_v2(image, model)
+                prediction = self._sliding_window(image, model)
                 #print(np.unique(prediction))
 
                 #prediction = self._denoise(np.uint8(prediction))
