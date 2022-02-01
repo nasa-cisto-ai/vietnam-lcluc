@@ -11,8 +11,7 @@ CVAL = 0
 
 ALLOWED_FILL_MODE = ('constant', 'nearest', 'reflect')
 
-
-class MightyMosaic(np.ndarray):
+class MightyMosaic(np.memmap):
     def __new__(cls, shape, tile_shape, overlap_factor=OVERLAP_FACTOR, fill_mode=FILL_MODE, cval=CVAL):
         """
         Create a MightyMosaic instance
