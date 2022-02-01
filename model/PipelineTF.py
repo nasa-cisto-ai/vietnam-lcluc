@@ -576,7 +576,7 @@ class PipelineTF(object):
         rast_shape = xraster[:, :, 0].shape  # shape of the wider scene
         prediction = np.zeros(rast_shape)  # crop out the window
 
-        window = xraster.values  # get window
+        window = xraster #.values  # get window
         window = np.clip(window, 0, 10000)
         window = from_array(
             window / 10000.0, (self.conf.tile_size,self.conf.tile_size),
