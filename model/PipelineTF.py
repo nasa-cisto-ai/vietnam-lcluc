@@ -578,12 +578,14 @@ class PipelineTF(object):
 
         window = xraster #.values  # get window
         window = np.clip(window, 0, 10000)
+        
         window = from_array(
             window / 10000.0, (self.conf.tile_size,self.conf.tile_size),
             overlap_factor=self.conf.inference_overlap, fill_mode='reflect')
 
         window = window.apply(
             model.predict, progress_bar=True, batch_size=self.conf.batch_size)
+        
         window = window.get_fusion()
 
         #print("After predict: ", window.shape)
