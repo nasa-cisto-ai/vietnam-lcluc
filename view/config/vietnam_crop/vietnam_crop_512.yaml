@@ -24,9 +24,9 @@ input_bands:
   - NIR1
 #  - HOM1
 #  - HOM2
-  - BAI
-  - NDVI
-  - NDWI
+#  - BAI
+#  - NDVI
+#  - NDWI
 
 output_bands:
   - Blue
