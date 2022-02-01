@@ -58,7 +58,7 @@ max_epochs: 6000
 model_filename: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/70-0.09-trees-mask-4bands.hdf5
 #inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/*.tif'
 inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/7-band/Keelin23_20110201_data-7band.tif'
-inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/crop_mask
+inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/trees_mask
 window_size: 8192
 inference_overlap: 2
 inference_treshold: 0.50
