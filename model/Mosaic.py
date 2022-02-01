@@ -207,7 +207,8 @@ def from_array(array, tile_shape, overlap_factor=OVERLAP_FACTOR,
     :return: A subclass of `np.ndarray`, with shape of length either `4` or `5`.
     :rtype: `MightyMosaic`
     """
-    assert isinstance(array, np.ndarray), f'array should be of type "np.ndarray" but is of type "{type(array)}"'
+    # testing array features
+    #assert isinstance(array, np.ndarray), f'array should be of type "np.ndarray" but is of type "{type(array)}"'
     assert len(array.shape) in (2, 3), \
         f'Array has incorrect shape {array.shape} is incorrect ' \
             f'(length is {len(array.shape)} but should be either 2 or 3).'
