@@ -26,20 +26,16 @@ from sklearn.ensemble import RandomForestClassifier as sklRFC
 from sklearn.metrics import accuracy_score, \
     precision_score, recall_score, f1_score
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-
-from model.indices import addindices, fdi, si, ndwi, modify_bands
-
-#try:
-#    import cupy as cp
-#    #import cudf as cf
-#    #from cuml.ensemble import RandomForestClassifier as cumlRFC
-#    #from cuml.dask.ensemble import RandomForestClassifier as cumlRFC_mg
-#    #from cupyx.scipy.ndimage import median_filter
-#    cp.random.seed(seed=None)
-#    HAS_GPU = True
-#except ImportError:
-#    HAS_GPU = False
+try:
+    import cupy as cp
+    import cudf as cf
+    from cuml.ensemble import RandomForestClassifier as cumlRFC
+    from cuml.dask.ensemble import RandomForestClassifier as cumlRFC_mg
+    from cupyx.scipy.ndimage import median_filter
+    cp.random.seed(seed=None)
+    HAS_GPU = True
+except ImportError:
+    HAS_GPU = False
 
 __author__ = "Jordan A Caraballo-Vega, Science Data Processing Branch"
 __email__ = "jordan.a.caraballo-vega@nasa.gov"
@@ -145,7 +141,7 @@ def main():
         '--gpu', dest='has_gpu', action='store_true', default=False)
 
     parser.add_argument(
-        '--output-model', type=str, default='output.pkl', required=False,
+        '--output-model', type=str, required=False,
         dest='output_pkl', help='Path to the output PKL file (.pkl)')
 
     parser.add_argument(
@@ -304,8 +300,7 @@ def main():
         # 1. Read data csv file
         # ----------------------------------------------------------------------------
         assert os.path.exists(args.train_csv), f'{args.train_csv} not found.'
-        data_df = pd.read_csv(args.train_csv, sep=',', names=['Blue','Green','Red','NIR1','FDI','SI','NDWI','Class'])
-        #data_df = pd.read_csv(args.train_csv, sep=',', names=['Blue','Green','Red','NIR1','Class'])
+        data_df = pd.read_csv(args.train_csv, sep=',')
         assert not data_df.isnull().values.any(), f'Na found: {args.train_csv}'
         logging.info(f'Open {args.train_csv} dataset for training.')
 
@@ -317,9 +312,6 @@ def main():
         # split dataset, fix type
         x = data_df.iloc[:, :-1].astype(np.float32)
         y = data_df.iloc[:, -1].astype(np.int8)
-
-        #x = x.head(10)
-        #y = y.head(10)
 
         # split data into training and test
         x_train, x_test, y_train, y_test = train_test_split(
@@ -412,36 +404,6 @@ def main():
         except Exception as e:
             logging.error(f'ERROR: {e}')
 
-        #import shap
-        #import copy
-
-        # explain the model's predictions using SHAP
-        # (same syntax works for LightGBM, CatBoost, scikit-learn, transformers, Spark, etc.)
-        """
-        explainer = shap.TreeExplainer(rf_model)
-        shap_values = explainer(x_test)
-        shap_values2 = copy.deepcopy(shap_values)
-        shap_values2.values = shap_values2.values[:,:,1]
-        shap_values2.base_values = shap_values2.base_values[:,1]
-        shap.plots.beeswarm(shap_values2)
-        """
-
-        #print(shap_values.shape)
-        #shap.plots.beeswarm(shap_values)
-
-        #shap_values = shap.TreeExplainer(rf_model).shap_values(x_test)
-        #shap.plots.beeswarm(shap_values)
-        #shap.summary_plot(shap_values, x_train)
-        #shap.plots.beeswarm(shap_values)
-
-        #shap.summary_plot(shap_values, x_train, plot_type="bar")
-        #print(shap_values)
-
-        #import matplotlib.pyplot as plt
-        #f = plt.figure()
-        #shap.summary_plot(shap_values, x_train)
-        #f.savefig("summary_plot1.png", bbox_inches='tight', dpi=600)
-
     # --------------------------------------------------------------------------------
     # predict step
     # --------------------------------------------------------------------------------
@@ -471,22 +433,16 @@ def main():
                 img = xr.open_rasterio(rast)
                 logging.info(f'Modified image: {img.shape}')
 
-                img = modify_bands(
-                    img, input_bands=['Blue', 'Green', 'Red', 'NIR1', 'HOM1', 'HOM2'],
-                    output_bands=['Blue', 'Green', 'Red', 'NIR1'])
-                print()
-                img, bands = addindices(img, ['Blue', 'Green', 'Red', 'NIR1'], [fdi, si, ndwi], factor=10000.0)
-
                 # crop ROI, from outside to inside based on pixel value
-                # img = np.clip(img, 0, 10000)
+                img = np.clip(img, 0, 10000)
                 prediction = predict(img, model, ws=[args.ws, args.ws])
 
                 # sieve
                 riofeat.sieve(prediction, 800, prediction, None, 8)
 
                 # median
-                #prediction = median_filter(cp.asarray(prediction), size=20)
-                #prediction = cp.asnumpy(prediction)
+                prediction = median_filter(cp.asarray(prediction), size=20)
+                prediction = cp.asnumpy(prediction)
 
                 toraster(
                     rast=rast, prediction=prediction, output=output_filename)

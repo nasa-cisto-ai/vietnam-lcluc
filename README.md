@@ -15,6 +15,35 @@ A system with NVIDIA GPUs is required to run the scripts located in this reposit
 - projects/crop_mapping: multi-class segmentation of land cover classes
 - projects/tree_cover: semantic segmentation of trees
 
+## Final LCLUC Product
+
+cloud mask
+tree/shadow
+crop/field
+
+0: Growing Rice/Row Crop 
+1: Sparse/Barren 
+2: Intercrop 
+3: Burned 
+4: Water 
+5: Roads/Urban/Other (Built up) 
+6: Other veg (include reeds/marshy areas)
+
+Trees and buildings
+
+0: trees
+1: water
+2: build
+3: shadow
+4: other 
+5: tree
+
+We care about
+
+From crop: 0-growing active, 4-water
+From trees: 0-tree, 3-shadow, 1-water
+From clouds: 1-cloud
+
 ## References
 
 [1] Chollet, François; et all, Keras, (2015), GitHub repository, <https://github.com/keras-team/keras>.

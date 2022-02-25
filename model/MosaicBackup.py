@@ -11,10 +11,9 @@ CVAL = 0
 
 ALLOWED_FILL_MODE = ('constant', 'nearest', 'reflect')
 
-class MightyMosaic(np.memmap):
-    #def __new__(cls, shape, tile_shape, overlap_factor=OVERLAP_FACTOR, fill_mode=FILL_MODE, cval=CVAL):
-    def __new__(cls, shape, tile_shape, overlap_factor=OVERLAP_FACTOR, fill_mode=FILL_MODE, cval=CVAL, mode='readwrite'):
 
+class MightyMosaic(np.ndarray):
+    def __new__(cls, shape, tile_shape, overlap_factor=OVERLAP_FACTOR, fill_mode=FILL_MODE, cval=CVAL):
         """
         Create a MightyMosaic instance
         :param shape: Number of tiles on each axis of the mosaic. If of length 3, also describe the number of channels.
@@ -71,7 +70,7 @@ class MightyMosaic(np.memmap):
         if nb_channels:
             mosaic_shape.append(nb_channels)
 
-        array = super().__new__(cls, mosaic_shape, float, None, 0, None, None, mode='readwrite')
+        array = super().__new__(cls, mosaic_shape, float, None, 0, None, None)
         # array = np.zeros(mosaic_shape)
 
         options = tf.data.Options()

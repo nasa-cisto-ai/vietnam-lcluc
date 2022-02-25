@@ -3,6 +3,7 @@ import sys
 import time
 import random
 import logging
+import cv2
 import cupy as cp
 import numpy as np
 import pandas as pd
@@ -18,6 +19,7 @@ from omegaconf.dictconfig import DictConfig
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.callbacks import TensorBoard, CSVLogger, ReduceLROnPlateau
+from scipy.ndimage import median_filter, binary_fill_holes
 
 from .ConfigTF import ConfigTF
 from .UNetTF import unet_batchnorm
@@ -25,6 +27,29 @@ from .Mosaic import from_array
 
 CHUNKS = {'band': 'auto', 'x': 'auto', 'y': 'auto'}
 AUTOTUNE = tf.data.experimental.AUTOTUNE
+
+class TverskyLoss(tf.keras.losses.Loss):
+
+    def call(self, y_true, y_pred, beta=0.7):
+        numerator = tf.reduce_sum(y_true * y_pred)
+        denominator = y_true * y_pred + beta * (1 - y_true) * y_pred + (1 - beta) * y_true * (1 - y_pred)
+        r = 1 - (numerator + 1) / (tf.reduce_sum(denominator) + 1)
+        return tf.cast(r, tf.float32)
+        #y_pred = tf.convert_to_tensor_v2(y_pred)
+        #y_true = tf.cast(y_true, y_pred.dtype)
+        #return tf.reduce_mean(math_ops.square(y_pred - y_true), axis=-1)
+
+
+def tversky_loss(y_true, y_pred, beta=0.7):
+    """ Tversky index (TI) is a generalization of Dice’s coefficient. TI adds a weight to FP (false positives) and FN (false negatives). """
+    def tversky_loss(y_true, y_pred):
+        numerator = tf.reduce_sum(y_true * y_pred)
+        denominator = y_true * y_pred + beta * (1 - y_true) * y_pred + (1 - beta) * y_true * (1 - y_pred)
+
+        r = 1 - (numerator + 1) / (tf.reduce_sum(denominator) + 1)
+        return tf.cast(r, tf.float32)
+
+    return tf.numpy_function(tversky_loss, [y_true, y_pred], tf.float32)
 
 class PipelineTF(object):
 
@@ -72,6 +97,8 @@ class PipelineTF(object):
             # Asarray option to force array type
             image = cp.asarray(image.values)
             label = cp.asarray(label)
+
+            label[label == 6] = 5
 
             # Move from chw to hwc, squeze mask if required
             image = cp.moveaxis(image, 0, -1).astype(np.int16)
@@ -129,7 +156,10 @@ class PipelineTF(object):
 
             optimizer = tf.keras.optimizers.Adam(self.conf.learning_rate)
             metrics = ["acc", tf.keras.metrics.Recall(), tf.keras.metrics.Precision(), self._iou]
-            model.compile(loss="binary_crossentropy", optimizer=optimizer, metrics=metrics)
+            # model.compile(loss="binary_crossentropy", optimizer=optimizer, metrics=metrics)
+            model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=metrics)
+            # tf.keras.losses.SparseCategoricalCrossentropy()
+            #model.compile(loss=TverskyLoss(), optimizer=optimizer, metrics=metrics)
             model.summary()
 
             callbacks = [
@@ -169,7 +199,11 @@ class PipelineTF(object):
 
         with self._gpu_strategy.scope():
             model = tf.keras.models.load_model(
-                self.conf.model_filename, custom_objects={"_iou":self._iou})
+                self.conf.model_filename, custom_objects={
+                    "_iou": self._iou,
+                    "TverskyLoss": TverskyLoss()
+                    }
+                )
             model.summary()  # print summary of the model
 
         os.makedirs(self.conf.inference_save_dir, exist_ok=True)
@@ -183,7 +217,7 @@ class PipelineTF(object):
 
             save_image = \
                 os.path.join(self.conf.inference_save_dir, f'{Path(filename).stem}_clouds.tif')
-            print(save_image)
+            #print(save_image)
 
             if not os.path.isfile(save_image):
 
@@ -194,14 +228,21 @@ class PipelineTF(object):
                 # --------------------------------------------------------------------------------
                 image = rxr.open_rasterio(filename, chunks=CHUNKS)
                 image = image.transpose("y", "x", "band")
-                print(image.shape)
+                #print(image.shape)
 
                 image = self._modify_bands(
                     xraster=image, input_bands=self.conf.input_bands,
                     output_bands=self.conf.output_bands)
-                print(image.shape)
+                #print(image.shape)
                 
+                # prediction = self._sliding_window(image, model)
                 prediction = self._sliding_window(image, model)
+                #print(np.unique(prediction))
+
+                #prediction = self._denoise(np.uint8(prediction))
+                #prediction = self._binary_fill(prediction)
+                #prediction = self._grow(np.uint8(prediction))
+                #print(np.unique(prediction))
                 
                 image = image.drop(dim="band", labels=image.coords["band"].values[1:], drop=True)
 
@@ -211,18 +252,21 @@ class PipelineTF(object):
                     coords=image.coords,
                     dims=image.dims,
                     attrs=image.attrs)
-                print(prediction)
+                #print(prediction)
 
                 prediction.attrs['long_name'] = ('mask')
                 prediction = prediction.transpose("band", "y", "x")
-                prediction.rio.write_nodata(prediction.rio.nodata, encoded=True)
+
+                nodata = prediction.rio.nodata
+                prediction = prediction.where(image != nodata)
+                prediction.rio.write_nodata(nodata, encoded=True, inplace=True)
                 prediction.rio.to_raster(save_image, BIGTIFF="IF_SAFER", compress='LZW')
 
                 del prediction
 
-        #    # This is the case where the prediction was already saved
-        #    else:
-        #        print(f'{save_image} already predicted.')
+            # This is the case where the prediction was already saved
+            else:
+                print(f'{save_image} already predicted.')
         return
 
     # ------------------------------------------------------------------
@@ -250,14 +294,18 @@ class PipelineTF(object):
         for new_dir in dirs:
             os.makedirs(new_dir, exist_ok=True)
 
-    def _iou(self, y_true, y_pred):
+    def _iou(self, y_true, y_pred, smooth=1e-15):
         def f(y_true, y_pred):
             intersection = (y_true * y_pred).sum()
             union = y_true.sum() + y_pred.sum() - intersection
-            x = (intersection + 1e-15) / (union + 1e-15)
+            x = (intersection + smooth) / (union + smooth)
             x = x.astype(np.float32)
             return x
         return tf.numpy_function(f, [y_true, y_pred], tf.float32)
+
+    #Keras
+    def _iou_loss(self, y_true, y_pred, smooth=1e-15):
+        return 1 - self._iou(y_true, y_pred)
 
     def timeit(func):
         def wrapper(*args, **kwargs):
@@ -266,6 +314,17 @@ class PipelineTF(object):
             print(f'Elapsed time is {time() - start} ms')
             return result
         return wrapper
+
+    def _grow(self, merged_mask, eps=120):
+        struct = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (eps, eps))
+        return cv2.morphologyEx(merged_mask, cv2.MORPH_CLOSE, struct)
+
+    def _denoise(self, merged_mask, eps=30):
+        struct = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (eps, eps))
+        return cv2.morphologyEx(merged_mask, cv2.MORPH_OPEN, struct)
+
+    def _binary_fill(self, merged_mask):
+        return binary_fill_holes(merged_mask)
 
     def to_tif(raster, filename: str, compress: str = 'LZW', crs: str = None):
         """
@@ -318,15 +377,27 @@ class PipelineTF(object):
             x = random.randint(0, image.shape[0] - tile_size)
             y = random.randint(0, image.shape[1] - tile_size)
 
+            ################ fix later #################################
+
             # Bool values for conditional statement
-            if image[x: (x + tile_size), y: (y + tile_size), :].min() < 0:
+            #if image[x: (x + tile_size), y: (y + tile_size), :].min() < 0:
+            #    continue
+
+            #if label[x: (x + tile_size), y: (y + tile_size)].min() < 0:
+            #    continue
+
+            if label[x: (x + tile_size), y: (y + tile_size)].max() > self.conf.n_classes or \
+                label[x: (x + tile_size), y: (y + tile_size)].min() < 0:
                 continue
 
-            if image[x: (x + tile_size), y: (y + tile_size), :].min() < 0:
-                continue
-            
             if include and cp.unique(label[x: (x + tile_size), y: (y + tile_size)]).shape[0] < 2:
                 continue
+
+            if len(np.unique(label[x: (x + tile_size), y: (y + tile_size)])) > 2:
+                print(np.unique(label[x: (x + tile_size), y: (y + tile_size)]))
+
+            #if len(np.unique(image[x: (x + tile_size), y: (y + tile_size), :])) > 2:
+            #    print(np.unique(image[x: (x + tile_size), y: (y + tile_size), :]))
 
             # Add to the tiles counter
             generated_tiles += 1
@@ -368,9 +439,16 @@ class PipelineTF(object):
         return data_filenames
 
     def _read_data(self, x, y):
-        x = np.load(x) / 10000.0
-        y = np.expand_dims(np.load(y), axis=-1)
-        return x.astype(np.float32), y.astype(np.float32)
+        x = (np.load(x) / 10000.0).astype(np.float32)
+        #x = np.load(x)
+        #for i in range(x.shape[-1]):  # for each channel in images
+        #    x[:, :, i] = (x[:, :, i] - np.mean(x[:, :, i])) / (np.std(x[:, :, i]) + 1e-8)
+        #y = np.expand_dims(np.load(y), axis=-1).astype(np.float32)
+        y = np.load(y)
+        y = tf.keras.utils.to_categorical(
+            y, num_classes=self.conf.n_classes, dtype='float32'
+        )
+        return x, y
 
     def _dataset_preprocessing(self, x, y):
         def _loader(x, y):
@@ -461,28 +539,65 @@ class PipelineTF(object):
 
                 window = xraster[y0:y1, x0:x1, :].values  # get window
 
+                #print("First value of window: ", window[0,0,0])
 
                 if np.all(window == window[0,0,0]):
+                    print("skipping, everything was nodata")
                     prediction[y0:y1, x0:x1] = window[:, :, 0]
                 
                 else:
-
+                    window = np.clip(window, 0, 10000)
                     window = from_array(
                         window / 10000.0, (self.conf.tile_size,self.conf.tile_size),
-                        overlap_factor=2, fill_mode='reflect')
-                    #mosaic = from_array(
-                    #    image.values / 10000.0, (256,256), overlap_factor=4, fill_mode='nearest')
-                    print(f'The mosaic shape is {window.shape}')
+                        overlap_factor=self.conf.inference_overlap, fill_mode='reflect')
+                    #window = from_array(
+                    #    window, (self.conf.tile_size,self.conf.tile_size),
+                    #    overlap_factor=self.conf.inference_overlap, fill_mode='reflect')
+
+                    #print(window.shape, "After from array")
 
                     window = window.apply(
                         model.predict, progress_bar=True, batch_size=self.conf.batch_size)
                     window = window.get_fusion()
-                    #print(prediction.shape, prediction.min(), prediction.max(), prediction.mean())
 
-                    window = np.squeeze(np.where(window > 0.90, 1, 0).astype(np.int16))
+                    #print("After predict: ", window.shape)
+
+                    if self.conf.n_classes > 1:
+                        window = np.squeeze(np.argmax(window, axis=-1)).astype(np.int16)
+                    else:
+                        window = np.squeeze(
+                            np.where(window > self.conf.inference_treshold, 1, 0).astype(np.int16))
                     prediction[y0:y1, x0:x1] = window
         return prediction
 
+    def _sliding_window_v2(self, xraster, model):
+
+        # open rasters and get both data and coordinates
+        rast_shape = xraster[:, :, 0].shape  # shape of the wider scene
+        prediction = np.zeros(rast_shape)  # crop out the window
+
+        window = xraster #.values  # get window
+        window = np.clip(window, 0, 10000)
+        
+        window = from_array(
+            window / 10000.0, (self.conf.tile_size,self.conf.tile_size),
+            overlap_factor=self.conf.inference_overlap, fill_mode='reflect')
+
+        window = window.apply(
+            model.predict, progress_bar=True, batch_size=self.conf.batch_size)
+        
+        window = window.get_fusion()
+
+        #print("After predict: ", window.shape)
+
+        if self.conf.n_classes > 1:
+            window = np.squeeze(np.argmax(window, axis=-1)).astype(np.int16)
+        else:
+            window = np.squeeze(
+                np.where(window > self.conf.inference_treshold, 1, 0).astype(np.int16))
+        
+        prediction = window
+        return prediction
 
 # -----------------------------------------------------------------------
 # Invoke the main
