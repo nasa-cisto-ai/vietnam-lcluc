@@ -1,21 +1,12 @@
 experiment_name: vietnam-trees
+
+data_dir: /lscratch/jacaraba/vietnam-lcluc/trees
+dataset_csv: /home/jacaraba/vietnam-lcluc/projects/vietnam_trees/vietnam_trees.csv
+
 seed: 42
 gpu_devices: 0,1,2,3
 mixed_precision: False
 xla: False
-
-dataset_csv: config/vietnam_trees/vietnam_trees.csv
-data_dir: /lscratch/jacaraba/vietnam-lcluc/trees
-
-#input_bands:
-#  - CoastalBlue
-#  - Blue
-#  - Green
-#  - Yellow
-#  - Red
-#  - RedEdge
-#  - NIR1
-#  - NIR2
 
 input_bands:
   - Blue
@@ -24,16 +15,31 @@ input_bands:
   - NIR1
   - HOM1
   - HOM2
-#  - BAI
 
 output_bands:
   - Blue
   - Green
   - Red
   - NIR1
-#  - BAI
-#  - NDVI
-#  - NDWI
+
+mean:
+  - 1356.0170
+  - 1108.6584
+  - 1037.8047
+  - 1085.6274
+  - 1203.8104
+  - 1443.2506
+  - 1975.8890
+  - 1809.5894
+std:
+  - 191.47617
+  - 203.02432
+  - 252.36482
+  - 345.19904
+  - 438.87582
+  - 369.22186
+  - 460.06600
+  - 409.99908
 
 tile_size: 512
 include_classes: False
@@ -43,6 +49,34 @@ n_classes: 6
 test_size: 0.20
 learning_rate: 0.0001
 max_epochs: 6000
+loss: tversky
+
+
+# pretty good vietnam
+#model_filename: /lscratch/jacaraba/vietnam-lcluc/clouds/model/23-0.05.hdf5
+#model_filename: /lscratch/jacaraba/vietnam-senegal-lcluc/clouds/model/46-0.04.hdf5
+#inference_regex: '/att/pubrepo/ILAB/projects/Vietnam/Sarah/data/*.tif'
+#inference_regex: '/att/pubrepo/ILAB/projects/Vietnam/Sarah/data/Keelin11_20151203_data.tif'
+#inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/*.tif'
+# trouble -- inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/WV02_20110408_M1BS_103001000A5FE000-toa_pansharpen_clip.tif'
+#inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/WV02_20120130_M1BS_1030010011A30B00-toa_pansharpen_clip.tif'
+#inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/WV02_20130125_M1BS_103001001DD53500-toa_pansharpen_clip.tif'
+#inference_regex: '/att/nobackup/mcarrol2/LCLUC_Senegal/ForKonrad/*data.tif'
+#inference_regex: '/adapt/nobackup/projects/ilab/projects/Senegal/Tapan_data/*.tif'
+#inference_regex: '/adapt/nobackup/projects/ilab/projects/Senegal/Tapan_data/Tappan12_WV02_20140925_M1BS_103001003775F400_data.tif'
+#inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/vhr-cloudmask-data/vietnam-senegal/results_mosaic_vietnam_v2
+
+#inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/vhr-cloudmask-data/vietnam-senegal/results_mosaic_vietnam_v2
+
+#model_filename: /adapt/nobackup/projects/ilab/projects/VHRCloudMask/Vietnam/cnn/models/22-0.06-vietnam-senegal-128ts-10000norm-binarycross.hdf5
+#model_filename: /lscratch/jacaraba/vietnam-senegal-lcluc/clouds-std/model/31-0.08.hdf5
+#inference_regex: '/adapt/nobackup/projects/ilab/projects/Senegal/Tapan_data/*.tif'
+#inference_save_dir: /adapt/nobackup/projects/ilab/projects/VHRCloudMask/Senegal/cnn/predictions/31-0.08-vietnam-senegal-128ts-std-tversky
+
+#window_size: 8192
+#inference_overlap: 2
+#inference_treshold: 0.50
+
 
 #model_filename: /lscratch/jacaraba/vietnam-lcluc/clouds/model/23-0.05.hdf5
 #inference_regex: '/att/pubrepo/ILAB/projects/Vietnam/Sarah/data/*.tif'
@@ -58,10 +92,10 @@ max_epochs: 6000
 
 # tversky
 #model_filename: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/70-0.09-trees-mask-4bands.hdf5
-model_filename: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/70-0.09-trees-mask-4bands.hdf5
+#model_filename: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/70-0.09-trees-mask-4bands.hdf5
 #inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/*.tif'
-inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/7-band/Keelin01_20151203_data-7band.tif'
-inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/trees_mask
-window_size: 8192
-inference_overlap: 2
-inference_treshold: 0.50
+#inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/CNN/7-band/Keelin01_20151203_data-7band.tif'
+#inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/trees_mask
+#window_size: 8192
+#inference_overlap: 2
+#inference_treshold: 0.50

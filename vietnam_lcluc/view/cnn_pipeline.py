@@ -6,10 +6,12 @@ import argparse
 import logging
 from omegaconf import OmegaConf
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+sys.path.append(
+    os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 
-from model.ConfigTF import ConfigTF
-from model.PipelineTF import PipelineTF
+from vietnam_lcluc.model.config import Config
+from vietnam_lcluc.model.cnn_base import CNNPipeline
 
 __author__ = "Jordan A Caraballo-Vega, Science Data Processing Branch"
 __email__ = "jordan.a.caraballo-vega@nasa.gov"
@@ -19,7 +21,7 @@ __status__ = "Production"
 # -----------------------------------------------------------------------------
 # main
 #
-# python view/pipeline.py -c config.yaml -s train
+# python view/cnn_pipeline.py -c config.yaml -s train
 # -----------------------------------------------------------------------------
 def main():
 
@@ -57,7 +59,7 @@ def main():
     logger.addHandler(ch)
 
     # Configuration file intialization
-    schema = OmegaConf.structured(ConfigTF)
+    schema = OmegaConf.structured(Config)
     conf = OmegaConf.load(args.config_file)
     try:
         OmegaConf.merge(schema, conf)
@@ -65,7 +67,7 @@ def main():
         sys.exit(f"ERROR: {err}")
 
     # Semantic segmentation pipeline
-    cnn_pipeline = PipelineTF(conf)
+    cnn_pipeline = CNNPipeline(conf)
 
     # execute pipeline step
     if args.pipeline_step == 'preprocess':
