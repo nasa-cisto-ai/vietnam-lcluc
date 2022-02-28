@@ -11,9 +11,17 @@ computing resources, particularly the PRISM GPU cluster.
 
 A system with NVIDIA GPUs is required to run the scripts located in this repository.
 
-- projects/cloud_mask: semantic segmentation of clouds
-- projects/crop_mapping: multi-class segmentation of land cover classes
-- projects/tree_cover: semantic segmentation of trees
+- projects/vietnam_clouds: semantic segmentation of clouds
+- projects/vietnam_crop: multi-class segmentation of land cover classes
+- projects/vietnam_trees: semantic segmentation of trees
+
+## Quickstart
+
+```bash
+module load singularity
+singularity build --sandbox /lscratch/jacaraba/container/tf-container docker://gitlab.nccs.nasa.gov:5050/nccs-ci/nccs-containers/rapids-tensorflow/nccs-ubuntu20-rapids-tensorflow
+singularity shell --nv -B /att,/lscratch,/adapt/nobackup/projects/ilab /lscratch/jacaraba/container/tf-container
+```
 
 ## Final LCLUC Product
 
