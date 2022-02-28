@@ -70,12 +70,12 @@ def main():
     cnn_pipeline = CNNPipeline(conf)
 
     # execute pipeline step
-    if args.pipeline_step == 'preprocess':
-        cnn_pipeline.preprocess()
-    elif args.pipeline_step == 'train':
-        cnn_pipeline.train()
-    elif args.pipeline_step == 'predict':
-        cnn_pipeline.predict()
+    #if args.pipeline_step == 'preprocess':
+    #    cnn_pipeline.preprocess()
+    #elif args.pipeline_step == 'train':
+    #    cnn_pipeline.train()
+    #elif args.pipeline_step == 'predict':
+    #    cnn_pipeline.predict()
 
 
 # -----------------------------------------------------------------------------

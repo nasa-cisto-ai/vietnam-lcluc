@@ -43,6 +43,7 @@ class CNNPipeline(object):
         # set system specifications and hardware strategies
         utils.seed_everything(self.conf.seed)
         self._gpu_strategy = utils.set_gpu_strategy(self.conf.gpu_devices)
+        print(type(self._gpu_strategy))
 
         if self.conf.mixed_precision:
             self._set_mixed_precision()
@@ -50,12 +51,10 @@ class CNNPipeline(object):
         if self.conf.xla:
             self._set_xla()
 
-    # -------------------------------------------------------------------------
-    # _create_work_dirs()
-    #
-    # Generate working directories
-    # -------------------------------------------------------------------------
-    def _create_work_dirs(self, dirs: list):
+    def _create_work_dirs(self, dirs: list) -> None:
+        """
+        Generate working directories.
+        """
         for new_dir in dirs:
             os.makedirs(new_dir, exist_ok=True)
         return
@@ -91,17 +90,19 @@ class CNNPipeline(object):
     #
     # Get dataset filenames for training
     # -------------------------------------------------------------------------
-    def _get_dataset_filenames(self, data_dir: str, ext: str = '*.npy'):
+    def _get_dataset_filenames(
+            self, data_dir: str, ext: str = '*.npy') -> list:
+        """
+        Get dataset filenames for training.
+        """
         data_filenames = glob(os.path.join(data_dir, ext))
         assert len(data_filenames) > 0, f'No files under {data_dir}.'
         return data_filenames
 
-    # -------------------------------------------------------------------------
-    # _read_data()
-    #
-    # Read data samples from disk
-    # -------------------------------------------------------------------------
     def _read_data(self, x, y):
+        """
+        Read data from disk and load for training.
+        """
         x = np.load(x)
         # x = utils.standardize(x)
         for i in range(x.shape[-1]):  # for each channel in the image
@@ -110,12 +111,10 @@ class CNNPipeline(object):
         y = np.load(y)
         return x.astype(np.float32), y.astype(np.float32)
 
-    # -------------------------------------------------------------------------
-    # _read_dataset_csv()
-    #
-    # Read CSV dataser for CNN training
-    # -------------------------------------------------------------------------
     def _read_dataset_csv(self, filename: str):
+        """
+        Read dataset CSV from disk and load for preprocessing.
+        """
         assert os.path.exists(filename), f'File {filename} not found.'
         data_df = pd.read_csv(filename)
         assert not data_df.isnull().values.any(), f'NaN found: {filename}'
@@ -156,13 +155,14 @@ class CNNPipeline(object):
     #
     # Preprocessing stage of the pipeline
     # -------------------------------------------------------------------------
-    def preprocess(self):
+    def preprocess(self) -> None:
 
         logging.info('Starting preprocessing stage')
 
         # Initialize dataframe with data details
         data_df = self._read_dataset_csv(self.conf.dataset_csv)
 
+        """
         # iterate over each file and generate dataset
         for data_filename, label_filename, n_tiles in data_df.values:
 
@@ -206,6 +206,7 @@ class CNNPipeline(object):
                 out_image_dir=self._images_dir,
                 out_label_dir=self._labels_dir
             )
+        """
         return
 
     # -------------------------------------------------------------------------
@@ -213,7 +214,9 @@ class CNNPipeline(object):
     #
     # Training stage of the pipeline
     # -------------------------------------------------------------------------
-    def train(self):
+    def train(self) -> None:
+
+        logging.info('Starting training stage')
 
         data_filenames = self._get_dataset_filenames(self._images_dir)
         label_filenames = self._get_dataset_filenames(self._labels_dir)
@@ -327,7 +330,7 @@ class CNNPipeline(object):
     #
     # Predicting stage of the pipeline
     # -------------------------------------------------------------------------
-    def predict(self):
+    def predict(self) -> None:
 
         logging.info('Starting prediction stage')
 

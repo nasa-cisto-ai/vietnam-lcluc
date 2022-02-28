@@ -41,7 +41,7 @@ std:
   - 460.06600
   - 409.99908
 
-tile_size: 512
+tile_size: 256
 include_classes: False
 augment: True
 batch_size: 32
