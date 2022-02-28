@@ -112,7 +112,7 @@ class CNNPipeline(object):
         y = np.load(y)
         return x.astype(np.float32), y.astype(np.float32)
 
-    def _read_dataset_csv(self, filename: str):
+    def _read_dataset_csv(self, filename: str) -> pd.core.frame.DataFrame:
         """
         Read dataset CSV from disk and load for preprocessing.
         """
@@ -162,9 +162,7 @@ class CNNPipeline(object):
 
         # Initialize dataframe with data details
         data_df = self._read_dataset_csv(self.conf.dataset_csv)
-        print(type(data_df))
 
-        """
         # iterate over each file and generate dataset
         for data_filename, label_filename, n_tiles in data_df.values:
 
@@ -193,22 +191,21 @@ class CNNPipeline(object):
             logging.info(f'Label classes from image: {cp.unique(label)}')
 
             # Processing required for this project
-            label = label - 1
-            logging.info(f'Label classes from image: {cp.unique(label)}')
+            #label = label - 1
+            #logging.info(f'Label classes from image: {cp.unique(label)}')
 
-            utils.gen_random_tiles(
-                image=image,
-                label=label,
-                tile_size=self.conf.tile_size,
-                num_classes=self.conf.n_classes,
-                max_patches=n_tiles,
-                include=self.conf.include_classes,
-                augment=self.conf.augment,
-                output_filename=data_filename,
-                out_image_dir=self._images_dir,
-                out_label_dir=self._labels_dir
-            )
-        """
+            #utils.gen_random_tiles(
+            #    image=image,
+            #    label=label,
+            #    tile_size=self.conf.tile_size,
+            #    num_classes=self.conf.n_classes,
+            #    max_patches=n_tiles,
+            #    include=self.conf.include_classes,
+            #    augment=self.conf.augment,
+            #    output_filename=data_filename,
+            #    out_image_dir=self._images_dir,
+            #    out_label_dir=self._labels_dir
+            #)
         return
 
     # -------------------------------------------------------------------------
