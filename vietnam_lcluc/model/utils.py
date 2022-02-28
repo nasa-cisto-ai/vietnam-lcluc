@@ -8,6 +8,7 @@ import cupy as cp
 import numpy as np
 import xarray as xr
 import tensorflow as tf
+from tensorflow.python.distribute.mirrored_strategy import MirroredStrategy
 
 from .inference import from_array
 
@@ -117,14 +118,14 @@ def seed_everything(seed: int = 42) -> None:
     return
 
 
-def set_gpu_strategy(gpu_devices: str = "0,1,2,3"):
+def set_gpu_strategy(gpu_devices: str = "0,1,2,3") -> MirroredStrategy:
     """
     Set training strategy.
     """
     os.environ['CUDA_VISIBLE_DEVICES'] = gpu_devices
     devices = tf.config.list_physical_devices('GPU')
     assert len(devices) != 0, "No GPU devices found."
-    return tf.distribute.MirroredStrategy()
+    return MirroredStrategy()
 
 
 def set_mixed_precision() -> None:

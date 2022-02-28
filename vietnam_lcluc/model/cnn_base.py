@@ -43,11 +43,12 @@ class CNNPipeline(object):
         # set system specifications and hardware strategies
         utils.seed_everything(self.conf.seed)
         self._gpu_strategy = utils.set_gpu_strategy(self.conf.gpu_devices)
-        print(type(self._gpu_strategy))
 
+        # enable mixed precision
         if self.conf.mixed_precision:
             self._set_mixed_precision()
 
+        # enable linear algebra acceleration
         if self.conf.xla:
             self._set_xla()
 
@@ -161,6 +162,7 @@ class CNNPipeline(object):
 
         # Initialize dataframe with data details
         data_df = self._read_dataset_csv(self.conf.dataset_csv)
+        print(type(data_df))
 
         """
         # iterate over each file and generate dataset
