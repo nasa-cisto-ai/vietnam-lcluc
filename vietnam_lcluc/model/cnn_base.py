@@ -185,6 +185,7 @@ class CNNPipeline(object):
         for data_filename, label_filename, n_tiles in data_df.values:
 
             logging.info(f'Processing {Path(data_filename).stem}')
+
             # Read imagery from disk and process both image and mask
             image = rxr.open_rasterio(data_filename, chunks=CHUNKS).load()
             label = rxr.open_rasterio(label_filename, chunks=CHUNKS).values
