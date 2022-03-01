@@ -56,7 +56,7 @@ loss: categorical_crossentropy
 
 model_filename: /lscratch/jacaraba/vietnam-lcluc/trees-categorical/model/95-0.20.hdf5
 inference_regex: '/adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/tree_model_data/data/*.tif'
-inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/trees_mask_test_categorical
+inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/trees_mask_test_categorical_nospline
 
 window_size: 8192
 inference_overlap: 2
