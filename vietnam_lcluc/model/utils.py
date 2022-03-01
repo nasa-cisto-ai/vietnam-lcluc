@@ -84,7 +84,7 @@ def get_mean_std_dataset(tf_dataset):
     Get general mean and std from tensorflow dataset.
     Useful when reading from disk and not from memory.
     """
-    print(type(tf_dataset))  # trying to get the type for the definition
+    #print(type(tf_dataset))  # trying to get the type for the definition
     for data, _ in tf_dataset:
         channels_sum, channels_squared_sum, num_batches = 0, 0, 0
         channels_sum += tf.reduce_mean(data, [0, 1, 2])
