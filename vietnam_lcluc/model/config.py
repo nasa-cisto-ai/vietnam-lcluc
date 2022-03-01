@@ -29,6 +29,7 @@ class Config:
     tile_size: int = 256
     include_classes: bool = False
     augment: bool = True
+    standardize: bool = True
     batch_size: int = 32
     n_classes: int = 1
     test_size: float = 0.20
