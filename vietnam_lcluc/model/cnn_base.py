@@ -86,11 +86,6 @@ class CNNPipeline(object):
             [self.conf.tile_size, self.conf.tile_size, self.conf.n_classes])
         return x, y
 
-    # -------------------------------------------------------------------------
-    # _get_dataset_filenames()
-    #
-    # Get dataset filenames for training
-    # -------------------------------------------------------------------------
     def _get_dataset_filenames(
             self, data_dir: str, ext: str = '*.npy') -> list:
         """
@@ -172,72 +167,6 @@ class CNNPipeline(object):
                 y = np.rot90(y, 3)
 
         return x, y
-
-    """
-    def tf_data_loader(self, x, y):
-
-        Read data from disk and load for training.
-
-        print(x, y)
-        x = np.load(x)
-        y = np.load(y)
-        return x.astype(np.float32), y.astype(np.float32)
-
-    def _tf_train_dataset(self, x, y):
-        dataset = tf.data.Dataset.from_tensor_slices((x, y))
-        dataset = dataset.shuffle(2048)
-        dataset = dataset.map(
-            self._dataset_train_preprocessing, num_parallel_calls=AUTOTUNE)
-        dataset = dataset.batch(self.conf.batch_size)
-        dataset = dataset.prefetch(AUTOTUNE)
-        # dataset = dataset.repeat()
-        return dataset
-
-
-    def tf_data_loader(x, y):
-        x, y = self._read_data(x.decode(), y.decode())
-        return x, y
-
-    def _read_data(self, x, y):
-        
-        Read data from disk and load for training.
-        
-        x = np.load(x)
-        # x = utils.standardize(x)
-        #for i in range(x.shape[-1]):  # for each channel in the image
-        #    x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
-        #        (self.conf.std[i] + 1e-8)
-        y = np.load(y)
-        return x.astype(np.float32), y.astype(np.float32)
-
-
-    def _dataset_train_preprocessing(self, x, y):
-        def _loader(x, y):
-            x, y = self._read_data(x.decode(), y.decode())
-            return x, y
-
-        x, y = tf.numpy_function(_loader, [x, y], [tf.float32, tf.float32])
-        x.set_shape([
-            self.conf.tile_size, self.conf.tile_size,
-            len(self.conf.output_bands)])
-        y.set_shape(
-            [self.conf.tile_size, self.conf.tile_size, self.conf.n_classes])
-        return x, y
-    """
-    # -------------------------------------------------------------------------
-    # _tf_val_dataset()
-    #
-    # TF validation dataset pipeline
-    # -------------------------------------------------------------------------
-    def _tf_val_dataset(self, x, y):
-        dataset = tf.data.Dataset.from_tensor_slices((x, y))
-        dataset = dataset.shuffle(2048)
-        dataset = dataset.map(
-            self._dataset_val_preprocessing, num_parallel_calls=AUTOTUNE)
-        dataset = dataset.batch(self.conf.batch_size)
-        dataset = dataset.prefetch(AUTOTUNE)
-        # dataset = dataset.repeat()
-        return dataset
 
     # -------------------------------------------------------------------------
     # preprocess()
@@ -454,11 +383,12 @@ class CNNPipeline(object):
 
         # TODO: get last model if no model filename was given
 
-        # TODO: Loading the trained model
+        # Loading the trained model
         assert os.path.isfile(self.conf.model_filename), \
             f'{self.conf.model_filename} does not exist.'
 
         with self._gpu_strategy.scope():
+
             model = tf.keras.models.load_model(
                 self.conf.model_filename, custom_objects={
                     # "_iou": self._iou,
@@ -519,10 +449,6 @@ class CNNPipeline(object):
                     std=self.conf.std
                 )
 
-                # prediction = self._denoise(np.uint8(prediction))
-                # prediction = self._binary_fill(prediction)
-                # prediction = self._grow(np.uint8(prediction))
-
                 image = image.drop(
                     dim="band",
                     labels=image.coords["band"].values[1:],
@@ -554,5 +480,4 @@ class CNNPipeline(object):
             # This is the case where the prediction was already saved
             else:
                 logging.info(f'{output_filename} already predicted.')
-
         return

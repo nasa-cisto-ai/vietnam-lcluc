@@ -8,6 +8,7 @@ import cupy as cp
 import numpy as np
 import xarray as xr
 import tensorflow as tf
+import scipy
 from tensorflow.python.distribute.mirrored_strategy import MirroredStrategy
 
 from .inference import from_array
@@ -147,6 +148,24 @@ def set_xla() -> None:
     return
 
 
+def spline_window(window_size: int, power: int = 2):
+    """
+    Squared spline (power=2) window function:
+    https://www.wolframalpha.com/input/?i=y%3Dx**2,+y%3D-(x-2)**2+%2B2,+y%3D(x-4)**2,+from+y+%3D+0+to+2
+    """
+    intersection = int(window_size/4)
+    wind_outer = (abs(2*(scipy.signal.triang(window_size))) ** power)/2
+    wind_outer[intersection:-intersection] = 0
+
+    wind_inner = 1 - (abs(2*(scipy.signal.triang(window_size) - 1)) ** power)/2
+    wind_inner[:intersection] = 0
+    wind_inner[-intersection:] = 0
+
+    wind = wind_inner + wind_outer
+    wind = wind / np.average(wind)
+    return wind
+
+
 def sliding_window(
             xraster, model, window_size, tile_size,
             inference_overlap, inference_treshold, batch_size,
@@ -158,6 +177,9 @@ def sliding_window(
 
     # in memory sliding window predictions
     wsy, wsx = window_size, window_size
+
+    # smooth window
+    spline = spline_window(window_size)
 
     # if the window size is bigger than the image, predict full image
     if wsy > rast_shape[0]:
@@ -203,8 +225,10 @@ def sliding_window(
                 # print("After fusion", window.shape)
 
                 if window.shape[-1] > 1:
+                    window = window * spline
                     window = np.argmax(window, axis=-1)
                 else:
+                    window = window * spline
                     window = np.squeeze(
                         np.where(
                             window > inference_treshold, 1, 0).astype(np.int16)
