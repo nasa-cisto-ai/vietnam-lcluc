@@ -408,6 +408,12 @@ class CNNPipeline(object):
         # create inference output directory
         os.makedirs(self.conf.inference_save_dir, exist_ok=True)
 
+        if self.conf.standardize:
+            self.conf.mean = np.load(
+                os.path.join(self.conf.data_dir, 'mean.npy')).tolist()
+            self.conf.std = np.load(
+                os.path.join(self.conf.data_dir, 'std.npy')).tolist()
+
         # iterate files, create lock file to avoid predicting the same file
         for filename in data_filenames:
 

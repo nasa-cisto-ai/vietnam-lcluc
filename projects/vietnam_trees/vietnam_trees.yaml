@@ -53,6 +53,9 @@ max_epochs: 6000
 #loss: tversky
 loss: categorical_crossentropy
 
+model_filename: /lscratch/jacaraba/vietnam-lcluc/trees-categorical/model/95-0.20.hdf5
+inference_regex: '/adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/tree_model_data/data/*.tif'
+
 # pretty good vietnam
 #model_filename: /lscratch/jacaraba/vietnam-lcluc/clouds/model/23-0.05.hdf5
 #model_filename: /lscratch/jacaraba/vietnam-senegal-lcluc/clouds/model/46-0.04.hdf5
