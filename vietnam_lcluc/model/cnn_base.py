@@ -159,18 +159,16 @@ class CNNPipeline(object):
         x = np.load(x)
         y = np.load(y)
 
-        #print(x.shape, y.shape)
-
         # Standardize
-        #if self.conf.standardize:
-        #    print("I AM INSIDE STD")
-        #    for i in range(x.shape[-1]):  # for each channel in the image
-        #        x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
-        #            (self.conf.std[i] + 1e-8)
+        if self.conf.standardize:
+            print("I AM INSIDE STD")
+            for i in range(x.shape[-1]):  # for each channel in the image
+                x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
+                    (self.conf.std[i] + 1e-8)
 
         # Augment
-        #if self.conf.augment:
-        #    print("Augment here")
+        if self.conf.augment:
+            print("Augment here")
 
         return x, y
 
@@ -318,9 +316,9 @@ class CNNPipeline(object):
 
         # Get mean and std array
         mean, std = utils.get_mean_std_dataset(tf_dataset)
-        #self.conf.mean, self.conf.std = \
-        #    self.conf.mean.numpy(), self.conf.std.numpy()
-        #print(self.conf.mean, self.conf.std)
+        self.conf.mean, self.conf.std = \
+            self.conf.mean.numpy(), self.conf.std.numpy()
+        print(self.conf.mean, self.conf.std)
         return
 
     # -------------------------------------------------------------------------
