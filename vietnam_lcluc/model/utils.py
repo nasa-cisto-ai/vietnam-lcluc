@@ -167,11 +167,8 @@ def spline_window(window_size: int, power: int = 2):
 
     wind = wind_inner + wind_outer
     wind = wind / np.average(wind)
-    print(wind.shape)
-    # additions from Jordan
     wind = np.expand_dims(np.expand_dims(wind, 1), 2)
     wind = wind * wind.transpose(1, 0, 2)
-    print(wind.shape)
     return wind
 
 
