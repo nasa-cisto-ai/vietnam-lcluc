@@ -159,7 +159,7 @@ class CNNPipeline(object):
         x = np.load(x)
         y = np.load(y)
 
-        print(x.shape, y.shape)
+        #print(x.shape, y.shape)
 
         # Standardize
         if self.conf.standardize:
@@ -318,9 +318,9 @@ class CNNPipeline(object):
 
         # Get mean and std array
         self.conf.mean, self.conf.std = utils.get_mean_std_dataset(tf_dataset)
-        self.conf.mean, self.conf.std = \
-            self.conf.mean.numpy(), self.conf.std.numpy()
-        print(self.conf.mean, self.conf.std)
+        #self.conf.mean, self.conf.std = \
+        #    self.conf.mean.numpy(), self.conf.std.numpy()
+        #print(self.conf.mean, self.conf.std)
         return
 
     # -------------------------------------------------------------------------
