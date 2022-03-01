@@ -285,18 +285,18 @@ class CNNPipeline(object):
             logging.info(f'Label classes from image: {cp.unique(label)}')
 
             # generate random tiles
-            #utils.gen_random_tiles(
-            #    image=image,
-            #    label=label,
-            #    tile_size=self.conf.tile_size,
-            #    num_classes=self.conf.n_classes,
-            #    max_patches=n_tiles,
-            #    include=self.conf.include_classes,
-            #    augment=self.conf.augment,
-            #    output_filename=data_filename,
-            #    out_image_dir=self._images_dir,
-            #    out_label_dir=self._labels_dir
-            #)
+            utils.gen_random_tiles(
+                image=image,
+                label=label,
+                tile_size=self.conf.tile_size,
+                num_classes=self.conf.n_classes,
+                max_patches=n_tiles,
+                include=self.conf.include_classes,
+                augment=self.conf.augment,
+                output_filename=data_filename,
+                out_image_dir=self._images_dir,
+                out_label_dir=self._labels_dir
+            )
 
         # Calculate mean and std values for training
         data_filenames = self._get_dataset_filenames(self._images_dir)
@@ -316,8 +316,9 @@ class CNNPipeline(object):
 
         # Get mean and std array
         mean, std = utils.get_mean_std_dataset(tf_dataset)
-        mean, std = mean.numpy(), std.numpy()
-        print(mean, std)
+        logging.info(f'Mean: {mean}, Std: {std}')
+        np.save(os.path.join(self._dataset_dir, 'mean.npy'), mean.numpy())
+        np.save(os.path.join(self._dataset_dir, 'std.npy'), std.numpy())
         return
 
     # -------------------------------------------------------------------------
