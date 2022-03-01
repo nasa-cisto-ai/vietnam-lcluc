@@ -190,11 +190,14 @@ class CNNPipeline(object):
             label = cp.squeeze(label) if len(label.shape) != 2 else label
             logging.info(f'Label classes from image: {cp.unique(label)}')
 
-            # Processing required for this project
-            #label = label - 1
-            #logging.info(f'Label classes from image: {cp.unique(label)}')
+            # ----------------------------------------------------------------
+            # preprocessing unique for this project
+            # Processing required for this project, we need to convert 6 to 5
+            label[label == 6] = 5
+            # ----------------------------------------------------------------
+            logging.info(f'Label classes from image: {cp.unique(label)}')
 
-            #utils.gen_random_tiles(
+            # utils.gen_random_tiles(
             #    image=image,
             #    label=label,
             #    tile_size=self.conf.tile_size,

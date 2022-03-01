@@ -43,7 +43,7 @@ def main():
                         required=True,
                         dest='pipeline_step',
                         help='Pipeline step to perform',
-                        choices=['preprocess', 'train', 'predict'])
+                        choices=['preprocess', 'train', 'predict', 'all'])
 
     args = parser.parse_args()
 
@@ -70,11 +70,11 @@ def main():
     cnn_pipeline = CNNPipeline(conf)
 
     # execute pipeline step
-    if args.pipeline_step == 'preprocess':
+    if args.pipeline_step in ['preprocess', 'all']:
         cnn_pipeline.preprocess()
-    elif args.pipeline_step == 'train':
+    if args.pipeline_step in ['train', 'all']:
         cnn_pipeline.train()
-    elif args.pipeline_step == 'predict':
+    if args.pipeline_step in ['predict', 'all']:
         cnn_pipeline.predict()
 
 
