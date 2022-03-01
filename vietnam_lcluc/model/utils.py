@@ -19,7 +19,7 @@ def gen_random_tiles(
             max_patches: int = None, include: bool = False,
             augment: bool = True, output_filename: str = 'image',
             out_image_dir: str = 'image',  out_label_dir: str = 'label'
-        ):
+        ) -> None:
 
     generated_tiles = 0  # counter for generated tiles
     while generated_tiles < max_patches:
@@ -30,7 +30,8 @@ def gen_random_tiles(
 
         # first condition, time must have valid classes
         if label[x: (x + tile_size), y: (y + tile_size)].min() < 0 or \
-                label[x: (x + tile_size), y: (y + tile_size)].max() >= num_classes:
+                label[x: (x + tile_size), y: (y + tile_size)].max() \
+                >= num_classes:
             continue
 
         # second condition, if include, number of labels must be at least 2
