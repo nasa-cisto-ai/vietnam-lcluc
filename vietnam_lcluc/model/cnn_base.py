@@ -162,15 +162,15 @@ class CNNPipeline(object):
         #print(x.shape, y.shape)
 
         # Standardize
-        if self.conf.standardize:
-            print("I AM INSIDE STD")
-            for i in range(x.shape[-1]):  # for each channel in the image
-                x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
-                    (self.conf.std[i] + 1e-8)
+        #if self.conf.standardize:
+        #    print("I AM INSIDE STD")
+        #    for i in range(x.shape[-1]):  # for each channel in the image
+        #        x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
+        #            (self.conf.std[i] + 1e-8)
 
         # Augment
-        if self.conf.augment:
-            print("Augment here")
+        #if self.conf.augment:
+        #    print("Augment here")
 
         return x, y
 
