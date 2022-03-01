@@ -184,14 +184,16 @@ def sliding_window(
     # in memory sliding window predictions
     wsy, wsx = window_size, window_size
 
-    # smooth window
-    spline = spline_window(window_size)
-
     # if the window size is bigger than the image, predict full image
     if wsy > rast_shape[0]:
         wsy = rast_shape[0]
     if wsx > rast_shape[1]:
         wsx = rast_shape[1]
+
+    # smooth window
+    # this might be problematic since there might be issues on tiles smaller
+    # than actual squares
+    spline = spline_window(wsy)
 
     # print(rast_shape, wsy, wsx)
     prediction = np.zeros(rast_shape)  # crop out the window
