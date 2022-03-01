@@ -3,6 +3,7 @@ import logging
 import omegaconf
 from glob import glob
 from pathlib import Path
+from typing import Any
 
 import cupy as cp
 import numpy as np
@@ -121,8 +122,12 @@ class CNNPipeline(object):
         assert not data_df.isnull().values.any(), f'NaN found: {filename}'
         return data_df
 
-    def tf_dataset(self, x, y, read_func, repeat=True, batch_size=64):
-        print(type(x), type(y))
+    def tf_dataset(
+            self, x: list, y: list, read_func: Any, repeat=True, batch_size=64
+            ) -> tf.python.data.ops.dataset_ops.PrefetchDataset:
+        """
+        Fetch tensorflow dataset.
+        """
         dataset = tf.data.Dataset.from_tensor_slices((x, y))
         dataset = dataset.shuffle(2048)
         dataset = dataset.map(read_func, num_parallel_calls=AUTOTUNE)
@@ -130,7 +135,6 @@ class CNNPipeline(object):
         dataset = dataset.prefetch(AUTOTUNE)
         if repeat:
             dataset = dataset.repeat()
-        print(type(dataset))
         return dataset
 
     def tf_data_loader(self, x, y):
@@ -286,8 +290,9 @@ class CNNPipeline(object):
             batch_size=self.conf.batch_size
         )
 
-        #self.conf.mean, self.conf.std = utils.get_mean_std_dataset(train_dataset)
-        #self.conf.mean, self.conf.std = self.conf.mean.numpy(), self.conf.std.numpy()
+        self.conf.mean, self.conf.std = utils.get_mean_std_dataset(tf_dataset)
+        self.conf.mean, self.conf.std = self.conf.mean.numpy(), self.conf.std.numpy()
+        print(self.conf.mean, self.conf.std)
         return
 
     # -------------------------------------------------------------------------
