@@ -89,10 +89,12 @@ def get_mean_std_dataset(tf_dataset):
         print(data)
         channels_sum, channels_squared_sum, num_batches = 0, 0, 0
         channels_sum += tf.reduce_mean(data, [0, 1, 2])
+        print(channels_sum)
         channels_squared_sum += tf.reduce_mean(data**2, [0, 1, 2])
         num_batches += 1
     mean = channels_sum / num_batches
     std = (channels_squared_sum / num_batches - mean ** 2) ** 0.5
+    print("Getting out")
     return mean, std
 
 
