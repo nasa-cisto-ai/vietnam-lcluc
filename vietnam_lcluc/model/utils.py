@@ -8,7 +8,7 @@ import cupy as cp
 import numpy as np
 import xarray as xr
 import tensorflow as tf
-import scipy.signal.triang
+import scipy.signal
 from tensorflow.python.distribute.mirrored_strategy import MirroredStrategy
 
 from .inference import from_array
