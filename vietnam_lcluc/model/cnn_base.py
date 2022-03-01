@@ -32,7 +32,6 @@ class CNNPipeline(object):
         self.conf = conf
 
         # set data variables for directory management
-        self._dataset_dir = os.path.join(self.conf.data_dir, 'dataset')
         self._images_dir = os.path.join(self.conf.data_dir, 'images')
         self._labels_dir = os.path.join(self.conf.data_dir, 'labels')
         self._model_dir = os.path.join(self.conf.data_dir, 'model')
@@ -317,8 +316,8 @@ class CNNPipeline(object):
         # Get mean and std array
         mean, std = utils.get_mean_std_dataset(tf_dataset)
         logging.info(f'Mean: {mean}, Std: {std}')
-        np.save(os.path.join(self._dataset_dir, 'mean.npy'), mean.numpy())
-        np.save(os.path.join(self._dataset_dir, 'std.npy'), std.numpy())
+        np.save(os.path.join(self.conf.data_dir, 'mean.npy'), mean.numpy())
+        np.save(os.path.join(self.conf.data_dir, 'std.npy'), std.numpy())
         return
 
     # -------------------------------------------------------------------------
