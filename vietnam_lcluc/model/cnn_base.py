@@ -134,15 +134,31 @@ class CNNPipeline(object):
         return dataset
 
     def tf_data_loader(self, x, y):
-        """
+
+        def _loader(x, y):
+            # x, y = self._read_data(x.decode(), y.decode())
+            x = np.load(x.decode())
+            y = np.load(y.decode())
+            return x.astype(np.float32), y.astype(np.float32)
+
+        x, y = tf.numpy_function(_loader, [x, y], [tf.float32, tf.float32])
+        x.set_shape([
+            self.conf.tile_size, self.conf.tile_size,
+            len(self.conf.output_bands)])
+        y.set_shape(
+            [self.conf.tile_size, self.conf.tile_size, self.conf.n_classes])
+        return x, y
+
+    """
+    def tf_data_loader(self, x, y):
+
         Read data from disk and load for training.
-        """
+
         print(x, y)
         x = np.load(x)
         y = np.load(y)
         return x.astype(np.float32), y.astype(np.float32)
 
-    """
     def _tf_train_dataset(self, x, y):
         dataset = tf.data.Dataset.from_tensor_slices((x, y))
         dataset = dataset.shuffle(2048)
