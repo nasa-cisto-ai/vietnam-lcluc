@@ -210,7 +210,8 @@ class CNNPipeline(object):
             # ----------------------------------------------------------------
             # preprocessing unique for this project
             # Processing required for this project, we need to convert 6 to 5
-            label[label == 6] = 5
+            label[label == 6] = 0
+            label[label == 5] = 0
             # ----------------------------------------------------------------
             logging.info(f'Label classes from image: {cp.unique(label)}')
 
