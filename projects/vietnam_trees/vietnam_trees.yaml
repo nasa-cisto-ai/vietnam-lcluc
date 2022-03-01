@@ -14,8 +14,8 @@ input_bands:
   - Green
   - Red
   - NIR1
-  - HOM1
-  - HOM2
+#  - HOM1
+#  - HOM2
 
 output_bands:
   - Blue
