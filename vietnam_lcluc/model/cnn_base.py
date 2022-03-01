@@ -100,18 +100,6 @@ class CNNPipeline(object):
         assert len(data_filenames) > 0, f'No files under {data_dir}.'
         return data_filenames
 
-    def _read_data(self, x, y):
-        """
-        Read data from disk and load for training.
-        """
-        x = np.load(x)
-        # x = utils.standardize(x)
-        #for i in range(x.shape[-1]):  # for each channel in the image
-        #    x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
-        #        (self.conf.std[i] + 1e-8)
-        y = np.load(y)
-        return x.astype(np.float32), y.astype(np.float32)
-
     def _read_dataset_csv(self, filename: str) -> pd.core.frame.DataFrame:
         """
         Read dataset CSV from disk and load for preprocessing.
@@ -160,14 +148,28 @@ class CNNPipeline(object):
 
         # Standardize
         if self.conf.standardize:
-            print("I AM INSIDE STD")
             for i in range(x.shape[-1]):  # for each channel in the image
                 x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
                     (self.conf.std[i] + 1e-8)
 
         # Augment
         if self.conf.augment:
-            print("Augment here")
+
+            if np.random.random_sample() > 0.5:
+                x = np.fliplr(x)
+                y = np.fliplr(y)
+            if np.random.random_sample() > 0.5:
+                x = np.flipud(x)
+                y = np.flipud(y)
+            if np.random.random_sample() > 0.5:
+                x = np.rot90(x, 1)
+                y = np.rot90(y, 1)
+            if np.random.random_sample() > 0.5:
+                x = np.rot90(x, 2)
+                y = np.rot90(y, 2)
+            if np.random.random_sample() > 0.5:
+                x = np.rot90(x, 3)
+                y = np.rot90(y, 3)
 
         return x, y
 

@@ -43,8 +43,8 @@ std:
 
 tile_size: 256
 include_classes: False
-augment: False
-standardize: False
+augment: True
+standardize: True
 batch_size: 32
 n_classes: 6
 test_size: 0.20
