@@ -37,6 +37,9 @@ def gen_random_tiles(
                 >= num_classes:
             continue
 
+        if image[x: (x + tile_size), y: (y + tile_size)].min() < 0:
+            continue
+
         # second condition, if include, number of labels must be at least 2
         if include and cp.unique(
                 label[x: (x + tile_size), y: (y + tile_size)]).shape[0] < 2:
