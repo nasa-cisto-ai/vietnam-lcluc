@@ -1,7 +1,7 @@
 experiment_name: vietnam-trees
 
 data_dir: /lscratch/jacaraba/vietnam-lcluc/trees-categorical
-dataset_csv: /home/jacaraba/vietnam-lcluc/projects/vietnam_trees/vietnam_trees.csv
+dataset_csv: /home/jacaraba/vietnam-lcluc/projects/vietnam_trees/vietnam_trees_small.csv
 
 seed: 42
 gpu_devices: 0,1,2,3
