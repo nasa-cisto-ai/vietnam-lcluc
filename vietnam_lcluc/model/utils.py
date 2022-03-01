@@ -86,6 +86,7 @@ def get_mean_std_dataset(tf_dataset):
     """
     #print(type(tf_dataset))  # trying to get the type for the definition
     for data, _ in tf_dataset:
+        print(data)
         channels_sum, channels_squared_sum, num_batches = 0, 0, 0
         channels_sum += tf.reduce_mean(data, [0, 1, 2])
         channels_squared_sum += tf.reduce_mean(data**2, [0, 1, 2])
