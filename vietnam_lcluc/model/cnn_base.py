@@ -294,13 +294,13 @@ class CNNPipeline(object):
                 os.path.join(self.conf.data_dir, 'std.npy')).tolist()
 
         train_dataset = self.tf_dataset(
-            data_filenames, label_filenames,
+            train_x, train_y,
             read_func=self.tf_data_loader, repeat=True,
             batch_size=self.conf.batch_size
         )
 
         val_dataset = self.tf_dataset(
-            data_filenames, label_filenames,
+            val_x, val_y,
             read_func=self.tf_data_loader, repeat=True,
             batch_size=self.conf.batch_size
         )
