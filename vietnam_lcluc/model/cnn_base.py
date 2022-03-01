@@ -159,8 +159,11 @@ class CNNPipeline(object):
         x = np.load(x)
         y = np.load(y)
 
+        print(x.shape, y.shape)
+
         # Standardize
         if self.conf.standardize:
+            print("I AM INSIDE STD")
             for i in range(x.shape[-1]):  # for each channel in the image
                 x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
                     (self.conf.std[i] + 1e-8)
