@@ -1,4 +1,5 @@
 experiment_name: vietnam-trees
+experiment_type: trees
 
 data_dir: /lscratch/jacaraba/vietnam-lcluc/trees-categorical
 dataset_csv: /home/jacaraba/vietnam-lcluc/projects/vietnam_trees/vietnam_trees.csv
