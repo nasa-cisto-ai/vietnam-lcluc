@@ -147,6 +147,7 @@ class CNNPipeline(object):
                 x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
                     (self.conf.std[i] + 1e-8)
 
+        """
         # Augment
         if self.conf.augment:
 
@@ -165,7 +166,7 @@ class CNNPipeline(object):
             if np.random.random_sample() > 0.5:
                 x = np.rot90(x, 3)
                 y = np.rot90(y, 3)
-
+        """
         return x, y
 
     # -------------------------------------------------------------------------
@@ -183,6 +184,7 @@ class CNNPipeline(object):
         # iterate over each file and generate dataset
         for data_filename, label_filename, n_tiles in data_df.values:
 
+            logging.info(f'Processing {Path(data_filename).stem}')
             # Read imagery from disk and process both image and mask
             image = rxr.open_rasterio(data_filename, chunks=CHUNKS).load()
             label = rxr.open_rasterio(label_filename, chunks=CHUNKS).values
