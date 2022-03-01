@@ -147,7 +147,6 @@ class CNNPipeline(object):
                 x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
                     (self.conf.std[i] + 1e-8)
 
-        """
         # Augment
         if self.conf.augment:
 
@@ -166,7 +165,7 @@ class CNNPipeline(object):
             if np.random.random_sample() > 0.5:
                 x = np.rot90(x, 3)
                 y = np.rot90(y, 3)
-        """
+
         return x, y
 
     # -------------------------------------------------------------------------
