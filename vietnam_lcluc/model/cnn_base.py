@@ -137,8 +137,9 @@ class CNNPipeline(object):
         """
         Read data from disk and load for training.
         """
-        x = np.load(x.decode())
-        y = np.load(y.decode())
+        print(x, y)
+        x = np.load(x)
+        y = np.load(y)
         return x.astype(np.float32), y.astype(np.float32)
 
     """
