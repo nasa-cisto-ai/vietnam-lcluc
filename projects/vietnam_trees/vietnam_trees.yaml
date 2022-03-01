@@ -55,8 +55,9 @@ max_epochs: 6000
 loss: categorical_crossentropy
 
 model_filename: /lscratch/jacaraba/vietnam-lcluc/trees-categorical/model/95-0.20.hdf5
-inference_regex: '/adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/tree_model_data/data/*.tif'
-inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/trees_mask_test_categorical_nospline
+#inference_regex: '/adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/tree_model_data/data/*.tif'
+inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/WV02_20130125_M1BS_103001001DD53500-toa_pansharpen_clip.tif'
+inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/trees_mask_test_categorical
 
 window_size: 8192
 inference_overlap: 2

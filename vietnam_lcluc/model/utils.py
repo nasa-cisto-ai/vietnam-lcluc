@@ -193,7 +193,7 @@ def sliding_window(
     # smooth window
     # this might be problematic since there might be issues on tiles smaller
     # than actual squares
-    #spline = spline_window(wsy)
+    spline = spline_window(wsy)
 
     # print(rast_shape, wsy, wsx)
     prediction = np.zeros(rast_shape)  # crop out the window
@@ -233,10 +233,10 @@ def sliding_window(
                 # print("After fusion", window.shape)
 
                 if window.shape[-1] > 1:
-                    # window = window * spline
+                    window = window * spline
                     window = np.argmax(window, axis=-1)
                 else:
-                    # window = window * spline
+                    window = window * spline
                     window = np.squeeze(
                         np.where(
                             window > inference_treshold, 1, 0).astype(np.int16)
