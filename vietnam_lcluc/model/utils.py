@@ -12,6 +12,8 @@ from tensorflow.python.distribute.mirrored_strategy import MirroredStrategy
 
 from .inference import from_array
 
+AUTOTUNE = tf.data.experimental.AUTOTUNE
+
 
 def gen_random_tiles(
             image: cp.ndarray, label: cp.ndarray,

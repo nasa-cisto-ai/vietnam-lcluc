@@ -106,9 +106,9 @@ class CNNPipeline(object):
         """
         x = np.load(x)
         # x = utils.standardize(x)
-        for i in range(x.shape[-1]):  # for each channel in the image
-            x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
-                (self.conf.std[i] + 1e-8)
+        #for i in range(x.shape[-1]):  # for each channel in the image
+        #    x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
+        #        (self.conf.std[i] + 1e-8)
         y = np.load(y)
         return x.astype(np.float32), y.astype(np.float32)
 
@@ -126,6 +126,19 @@ class CNNPipeline(object):
     #
     # TF training dataset pipeline
     # -------------------------------------------------------------------------
+    def tf_dataset(self, x, y, read_func, repeat=True, batch_size=64):
+        print(type(x), type(y))
+        dataset = tf.data.Dataset.from_tensor_slices((x, y))
+        dataset = dataset.shuffle(2048)
+        dataset = dataset.map(read_func, num_parallel_calls=AUTOTUNE)
+        dataset = dataset.batch(batch_size)
+        dataset = dataset.prefetch(AUTOTUNE)
+        if repeat:
+            dataset = dataset.repeat()
+        print(type(dataset))
+        return dataset
+
+    """
     def _tf_train_dataset(self, x, y):
         dataset = tf.data.Dataset.from_tensor_slices((x, y))
         dataset = dataset.shuffle(2048)
@@ -136,6 +149,37 @@ class CNNPipeline(object):
         # dataset = dataset.repeat()
         return dataset
 
+
+    def tf_data_loader(x, y):
+        x, y = self._read_data(x.decode(), y.decode())
+        return x, y
+
+    def _read_data(self, x, y):
+        
+        Read data from disk and load for training.
+        
+        x = np.load(x)
+        # x = utils.standardize(x)
+        #for i in range(x.shape[-1]):  # for each channel in the image
+        #    x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
+        #        (self.conf.std[i] + 1e-8)
+        y = np.load(y)
+        return x.astype(np.float32), y.astype(np.float32)
+
+
+    def _dataset_train_preprocessing(self, x, y):
+        def _loader(x, y):
+            x, y = self._read_data(x.decode(), y.decode())
+            return x, y
+
+        x, y = tf.numpy_function(_loader, [x, y], [tf.float32, tf.float32])
+        x.set_shape([
+            self.conf.tile_size, self.conf.tile_size,
+            len(self.conf.output_bands)])
+        y.set_shape(
+            [self.conf.tile_size, self.conf.tile_size, self.conf.n_classes])
+        return x, y
+    """
     # -------------------------------------------------------------------------
     # _tf_val_dataset()
     #
@@ -198,21 +242,26 @@ class CNNPipeline(object):
             logging.info(f'Label classes from image: {cp.unique(label)}')
 
             # generate random tiles
-            utils.gen_random_tiles(
-                image=image,
-                label=label,
-                tile_size=self.conf.tile_size,
-                num_classes=self.conf.n_classes,
-                max_patches=n_tiles,
-                include=self.conf.include_classes,
-                augment=self.conf.augment,
-                output_filename=data_filename,
-                out_image_dir=self._images_dir,
-                out_label_dir=self._labels_dir
-            )
+            #utils.gen_random_tiles(
+            #    image=image,
+            #    label=label,
+            #    tile_size=self.conf.tile_size,
+            #    num_classes=self.conf.n_classes,
+            #    max_patches=n_tiles,
+            #    include=self.conf.include_classes,
+            #    augment=self.conf.augment,
+            #    output_filename=data_filename,
+            #    out_image_dir=self._images_dir,
+            #    out_label_dir=self._labels_dir
+            #)
 
             # get std and mean values for training
-            # data_filenames = self._get_dataset_filenames(self._images_dir)
+            data_filenames = self._get_dataset_filenames(self._images_dir)
+            label_filenames = self._get_dataset_filenames(self._labels_dir)
+            logging.info(
+                f'Extracting mean and std from {len(data_filenames)} files.')
+            
+            #tf_dataset(self, x, y, read_func, repeat=True, batch_size=64)
             #tf_dataset = self._tf_train_dataset(train_x, train_y)
             #self.conf.mean, self.conf.std = utils.get_mean_std_dataset(train_dataset)
             #self.conf.mean, self.conf.std = self.conf.mean.numpy(), self.conf.std.numpy()
