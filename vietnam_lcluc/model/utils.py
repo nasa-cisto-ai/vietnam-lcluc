@@ -71,8 +71,6 @@ def gen_random_tiles(
                 image_tile = cp.rot90(image_tile, 3)
                 label_tile = cp.rot90(label_tile, 3)
 
-        print(cp.unique(label_tile), image_tile.min())
-
         if num_classes > 2:
             label_tile = tf.keras.utils.to_categorical(
                 label_tile.get(), num_classes=num_classes)
