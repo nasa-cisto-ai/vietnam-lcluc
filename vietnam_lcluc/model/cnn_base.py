@@ -354,9 +354,9 @@ class CNNPipeline(object):
         # Init datasets
         if self.conf.standardize:
             self.conf.mean = np.load(
-                os.path.join(self.conf.data_dir, 'mean.npy'))
+                os.path.join(self.conf.data_dir, 'mean.npy')).tolist()
             self.conf.std = np.load(
-                os.path.join(self.conf.data_dir, 'std.npy'))
+                os.path.join(self.conf.data_dir, 'std.npy')).tolist()
 
         train_dataset = self.tf_dataset(
             data_filenames, label_filenames,
