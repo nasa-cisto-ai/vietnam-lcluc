@@ -121,11 +121,6 @@ class CNNPipeline(object):
         assert not data_df.isnull().values.any(), f'NaN found: {filename}'
         return data_df
 
-    # -------------------------------------------------------------------------
-    # _tf_train_dataset()
-    #
-    # TF training dataset pipeline
-    # -------------------------------------------------------------------------
     def tf_dataset(self, x, y, read_func, repeat=True, batch_size=64):
         print(type(x), type(y))
         dataset = tf.data.Dataset.from_tensor_slices((x, y))
@@ -137,6 +132,14 @@ class CNNPipeline(object):
             dataset = dataset.repeat()
         print(type(dataset))
         return dataset
+
+    def tf_data_loader(self, x, y):
+        """
+        Read data from disk and load for training.
+        """
+        x = np.load(x.decode())
+        y = np.load(y.decode())
+        return x.astype(np.float32), y.astype(np.float32)
 
     """
     def _tf_train_dataset(self, x, y):
@@ -255,16 +258,19 @@ class CNNPipeline(object):
             #    out_label_dir=self._labels_dir
             #)
 
-            # get std and mean values for training
-            data_filenames = self._get_dataset_filenames(self._images_dir)
-            label_filenames = self._get_dataset_filenames(self._labels_dir)
-            logging.info(
-                f'Extracting mean and std from {len(data_filenames)} files.')
-            
-            #tf_dataset(self, x, y, read_func, repeat=True, batch_size=64)
-            #tf_dataset = self._tf_train_dataset(train_x, train_y)
-            #self.conf.mean, self.conf.std = utils.get_mean_std_dataset(train_dataset)
-            #self.conf.mean, self.conf.std = self.conf.mean.numpy(), self.conf.std.numpy()
+        # Calculate mean and std values for training
+        data_filenames = self._get_dataset_filenames(self._images_dir)
+        label_filenames = self._get_dataset_filenames(self._labels_dir)
+        logging.info(f'Mean and std values from {len(data_filenames)} files.')
+
+        tf_dataset = self.tf_dataset(
+            data_filenames, label_filenames,
+            read_func=self.tf_data_loader, repeat=False,
+            batch_size=self.conf.batch_size
+        )
+
+        #self.conf.mean, self.conf.std = utils.get_mean_std_dataset(train_dataset)
+        #self.conf.mean, self.conf.std = self.conf.mean.numpy(), self.conf.std.numpy()
         return
 
     # -------------------------------------------------------------------------
