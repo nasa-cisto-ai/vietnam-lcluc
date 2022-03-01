@@ -329,15 +329,18 @@ class CNNPipeline(object):
 
         logging.info('Starting training stage')
 
+        # Get data and label filenames for training
         data_filenames = self._get_dataset_filenames(self._images_dir)
         label_filenames = self._get_dataset_filenames(self._labels_dir)
         logging.info(
             f'Data: {len(data_filenames)}, Label: {len(label_filenames)}')
 
+        # Get total and validation size
         total_size = len(data_filenames)
         val_size = round(self.conf.test_size * total_size)
         logging.info(f'Train: {total_size - val_size}, Val: {val_size}')
 
+        # Split training and validation dataset
         train_x, val_x = train_test_split(
             data_filenames, test_size=val_size, random_state=self.conf.seed)
         train_y, val_y = train_test_split(
@@ -348,26 +351,28 @@ class CNNPipeline(object):
         options.experimental_distribute.auto_shard_policy = \
             tf.data.experimental.AutoShardPolicy.OFF
 
-        train_dataset = self._tf_train_dataset(train_x, train_y)
-        val_dataset = self._tf_val_dataset(val_x, val_y)
+        # Init datasets
+        if self.conf.standardize:
+            self.conf.mean = np.load(
+                os.path.join(self.conf.data_dir, 'mean.npy'))
+            self.conf.std = np.load(
+                os.path.join(self.conf.data_dir, 'std.npy'))
+
+        train_dataset = self.tf_dataset(
+            data_filenames, label_filenames,
+            read_func=self.tf_data_loader, repeat=True,
+            batch_size=self.conf.batch_size
+        )
+
+        val_dataset = self.tf_dataset(
+            data_filenames, label_filenames,
+            read_func=self.tf_data_loader, repeat=True,
+            batch_size=self.conf.batch_size
+        )
 
         # Disable AutoShard, data lives in memory, use in memory options
         train_dataset = train_dataset.with_options(options)
         val_dataset = val_dataset.with_options(options)
-
-        # Calculate mean and std
-        # TODO: make this step optional, output to temporary file
-        #       if given, no need to be calculated
-        #       make this step with a setter instead of plain self definition
-        # self.conf.mean, self.conf.std = utils.get_mean_std_dataset(train_dataset)
-        # self.conf.mean, self.conf.std = self.conf.mean.numpy(), self.conf.std.numpy()
-
-        """
-        # Here we repeat the dataset
-        # TODO: consider doing this step elsewhere to not
-        # allow them in the general pipeline
-        train_dataset = train_dataset.repeat()
-        val_dataset = val_dataset.repeat()
 
         # Initialize and compile model
         with self._gpu_strategy.scope():
@@ -432,8 +437,8 @@ class CNNPipeline(object):
             epochs=self.conf.max_epochs,
             steps_per_epoch=train_steps,
             validation_steps=val_steps,
-            callbacks=callbacks)
-        """
+            callbacks=callbacks
+        )
         return
 
     # -------------------------------------------------------------------------
