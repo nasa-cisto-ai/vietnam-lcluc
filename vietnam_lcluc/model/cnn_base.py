@@ -317,7 +317,7 @@ class CNNPipeline(object):
         # Get mean and std array
         mean, std = utils.get_mean_std_dataset(tf_dataset)
         mean, std = mean.numpy(), std.numpy()
-        print(self.conf.mean, self.conf.std)
+        print(mean, std)
         return
 
     # -------------------------------------------------------------------------
