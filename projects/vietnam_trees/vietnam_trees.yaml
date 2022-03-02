@@ -1,5 +1,5 @@
 experiment_name: vietnam-trees
-experiment_type: trees-nospline
+experiment_type: trees-spline
 
 #data_dir: /lscratch/jacaraba/vietnam-lcluc/trees-categorical
 #data_dir: /lscratch/jacaraba/vietnam-lcluc/trees-categorical-notinclude
