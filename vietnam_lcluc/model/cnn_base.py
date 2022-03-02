@@ -91,7 +91,7 @@ class CNNPipeline(object):
         """
         Get dataset filenames for training.
         """
-        data_filenames = glob(os.path.join(data_dir, ext))
+        data_filenames = sorted(glob(os.path.join(data_dir, ext)))
         assert len(data_filenames) > 0, f'No files under {data_dir}.'
         return data_filenames
 
