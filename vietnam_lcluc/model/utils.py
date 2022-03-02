@@ -104,9 +104,8 @@ def modify_bands(
     """
     Drop multiple bands to existing rasterio object
     """
-    print(xraster.shape[0], xraster.shape, xraster['band'].shape)
     # Do not modify if image has the same number of output bands
-    if xraster.shape[0] == len(output_bands):
+    if xraster['band'].shape[0] == len(output_bands):
         return xraster
 
     # Drop any bands from input that should not be on output
