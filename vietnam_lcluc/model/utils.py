@@ -237,6 +237,7 @@ def sliding_window(
 
                 if window.shape[-1] > 1:
                     window = np.argmax(window, axis=-1)
+                    print('Window shape before spline', window.shape, window_spline.shape)
                     window = window * window_spline
                 else:
                     window = np.squeeze(
