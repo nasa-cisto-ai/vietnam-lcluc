@@ -212,6 +212,8 @@ def sliding_window(
                 x0 = x1 - tile_size  # assign boundary to -tsize
 
             window = xraster[y0:y1, x0:x1, :].values  # get window
+            window_shape = window.shape
+            window_spline = spline[0:window_shape[0], 0:window_shape[1]]
 
             if np.all(window == window[0, 0, 0]):
                 prediction[y0:y1, x0:x1] = window[:, :, 0]
@@ -233,10 +235,10 @@ def sliding_window(
                 # print("After fusion", window.shape)
 
                 if window.shape[-1] > 1:
-                    window = window * spline
+                    window = window * window_spline
                     window = np.argmax(window, axis=-1)
                 else:
-                    window = window * spline
+                    window = window * window_spline
                     window = np.squeeze(
                         np.where(
                             window > inference_treshold, 1, 0).astype(np.int16)
