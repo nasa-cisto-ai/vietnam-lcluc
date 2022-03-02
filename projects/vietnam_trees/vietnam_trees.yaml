@@ -63,7 +63,7 @@ loss: tversky
 model_filename: /lscratch/jacaraba/vietnam-lcluc/trees-categorical-notinclude/model/102-0.17.hdf5
 inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/trees_mask_test_categorical_notinclude
 inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/WV02_20130125_M1BS_103001001DD53500-toa_pansharpen_clip.tif'
-inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/*.tif'
+#inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/*.tif'
 
 #model_filename: /lscratch/jacaraba/vietnam-lcluc/trees-tversky-notinclude/model/83-0.09.hdf5
 #inference_regex: '/adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/tree_model_data/data/*.tif'
