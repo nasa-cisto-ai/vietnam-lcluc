@@ -213,7 +213,8 @@ def sliding_window(
 
             window = xraster[y0:y1, x0:x1, :].values  # get window
             window_shape = window.shape
-            window_spline = spline[0:window_shape[0], 0:window_shape[1]]
+            window_spline = np.squeeze(
+                spline[0:window_shape[0], 0:window_shape[1]])
 
             if np.all(window == window[0, 0, 0]):
                 prediction[y0:y1, x0:x1] = window[:, :, 0]
