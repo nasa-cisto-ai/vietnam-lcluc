@@ -2,7 +2,8 @@ experiment_name: vietnam-trees
 experiment_type: trees
 
 #data_dir: /lscratch/jacaraba/vietnam-lcluc/trees-categorical
-data_dir: /lscratch/jacaraba/vietnam-lcluc/trees-categorical-notinclude
+#data_dir: /lscratch/jacaraba/vietnam-lcluc/trees-categorical-notinclude
+data_dir: /lscratch/jacaraba/vietnam-lcluc/trees-tversky-notinclude
 dataset_csv: /home/jacaraba/vietnam-lcluc/projects/vietnam_trees/vietnam_trees.csv
 
 seed: 42
@@ -15,8 +16,8 @@ input_bands:
   - Green
   - Red
   - NIR1
-#  - HOM1
-#  - HOM2
+  - HOM1
+  - HOM2
 
 output_bands:
   - Blue
@@ -52,8 +53,8 @@ n_classes: 5
 test_size: 0.20
 learning_rate: 0.0001
 max_epochs: 6000
-#loss: tversky
-loss: categorical_crossentropy
+loss: tversky
+#loss: categorical_crossentropy
 
 # this model had include_classes set to true
 #model_filename: /lscratch/jacaraba/vietnam-lcluc/trees-categorical/model/95-0.20.hdf5
