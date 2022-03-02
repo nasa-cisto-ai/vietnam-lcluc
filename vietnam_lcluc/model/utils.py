@@ -235,10 +235,10 @@ def sliding_window(
                 # print("After fusion", window.shape)
 
                 if window.shape[-1] > 1:
-                    window = window * window_spline
+                    # window = window * window_spline
                     window = np.argmax(window, axis=-1)
                 else:
-                    window = window * window_spline
+                    # window = window * window_spline
                     window = np.squeeze(
                         np.where(
                             window > inference_treshold, 1, 0).astype(np.int16)
