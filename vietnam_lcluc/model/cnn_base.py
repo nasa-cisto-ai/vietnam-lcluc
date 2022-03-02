@@ -414,6 +414,8 @@ class CNNPipeline(object):
             self.conf.std = np.load(
                 os.path.join(self.conf.data_dir, 'std.npy')).tolist()
 
+        logging.info(f'Mean: {self.conf.mean}, Std: {self.conf.std}')
+
         # iterate files, create lock file to avoid predicting the same file
         for filename in data_filenames:
 
