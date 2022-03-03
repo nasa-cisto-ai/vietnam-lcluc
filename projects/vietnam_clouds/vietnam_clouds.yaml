@@ -40,6 +40,10 @@ max_epochs: 6000
 #loss: tversky
 loss: categorical_crossentropy
 
+window_size: 8192
+inference_overlap: 2
+inference_treshold: 0.50
+
 # this model had include_classes set to true
 model_filename: /lscratch/jacaraba/vietnam-lcluc/clouds-categorical-notinclude/model/77-0.03.hdf5
 inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/WV02_20130125_M1BS_103001001DD53500-toa_pansharpen_clip.tif'
