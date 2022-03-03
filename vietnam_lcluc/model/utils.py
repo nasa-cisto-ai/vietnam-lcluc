@@ -239,13 +239,13 @@ def sliding_window(
 
                 if window.shape[-1] > 1:
                     window = np.argmax(window, axis=-1)
-                    print('Window shape before spline', window.shape, window_spline.shape)
-                    window = window * window_spline
+                    #print('Window shape before spline', window.shape, window_spline.shape)
+                    #window = window * window_spline
                 else:
                     window = np.squeeze(
                         np.where(
                             window > inference_treshold, 1, 0).astype(np.int16)
                         )
-                    window = window * window_spline
+                    #window = window * window_spline
                 prediction[y0:y1, x0:x1] = window
     return prediction

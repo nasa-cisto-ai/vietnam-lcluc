@@ -210,10 +210,14 @@ class CNNPipeline(object):
             logging.info(f'Label classes from image: {cp.unique(label)}')
 
             # ----------------------------------------------------------------
-            # preprocessing unique for this project
+
+            # preprocessing unique for trees this project
             # Processing required for this project, we need to convert 6 to 5
-            label[label == 6] = 0
-            label[label == 5] = 0
+            if self.conf.experiment_type == 'trees':
+                label[label == 6] = 0
+                label[label == 5] = 0
+            # elif self.conf.experiment_type == 'clouds':
+
             # ----------------------------------------------------------------
             logging.info(f'Label classes from image: {cp.unique(label)}')
 
