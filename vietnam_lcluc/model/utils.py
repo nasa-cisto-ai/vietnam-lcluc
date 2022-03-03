@@ -345,7 +345,7 @@ def sliding_window_hann(
     use_hanning = True
 
     # print(rast_shape, wsy, wsx)
-    prediction = np.zeros(rast_shape)  # crop out the window
+    prediction = np.zeros((rast_shape[0], rast_shape[1], 2))
     print(f'Prediction shape: {prediction.shape}')
 
     patch_list = generate_patch_list(
@@ -356,7 +356,8 @@ def sliding_window_hann(
         patch_x, patch_y, patch_width, patch_height, window = patch
         input_patch = np.expand_dims(xraster[patch_y:patch_y+patch_height, patch_x:patch_x+patch_width].values, 0)
         window_pred = model.predict(input_patch)
-        prediction[patch_y:patch_y+patch_height, patch_x:patch_x+patch_width] += window_pred * np.expand_dims(window, -1)
+        prediction[patch_y:patch_y+patch_height, patch_x:patch_x+patch_width] += \
+            np.squeeze(window_pred) * np.expand_dims(window, -1)
 
     if prediction.shape[-1] > 1:
         prediction = np.argmax(prediction, axis=-1)
