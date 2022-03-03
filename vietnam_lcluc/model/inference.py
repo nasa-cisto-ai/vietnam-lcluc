@@ -126,7 +126,7 @@ class MightyMosaic(np.ndarray):
             # batch_size = self.find_best_divisor(
             #    size=self.shape[0] * self.shape[1], low=self.shape[0], high=batch_size, step=1)
             batch_size = self.find_best_divisor(
-                size=self.shape[0] * self.shape[1], low=0, high=batch_size, step=1)
+                size=self.shape[0] * self.shape[1], low=8, high=batch_size, step=1)
 
         assert self.shape[0] * self.shape[1] / batch_size == self.shape[0] * self.shape[1] // batch_size, \
             f'You have {self.shape[0] * self.shape[1]} tiles but a batch_size of {batch_size}.' \
