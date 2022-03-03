@@ -9,6 +9,7 @@ import numpy as np
 import xarray as xr
 import tensorflow as tf
 import scipy.signal
+import scipy.signal.windows as w
 from tensorflow.python.distribute.mirrored_strategy import MirroredStrategy
 
 from .inference import from_array
@@ -253,62 +254,117 @@ def sliding_window(
                 prediction[y0:y1, x0:x1] = window
     return prediction
 
-"""
-def get_extract_pred_scatter(
-        img, model, PATCH_SIZE, PATCH_STRIDE, SIZES, STRIDES,
-        RATES, PADDING, BATCH_SIZE, NUM_CLASSES):
 
-    H, W, C = img.shape
-
-    # patch_number 
-    tile_PATCH_NUMBER = (
-        (H - PATCH_SIZE)//PATCH_STRIDE + 1) * \
-        ((W - PATCH_SIZE)//PATCH_STRIDE + 1)
-    # the indices trick to reconstruct the tile
-    x = tf.range(W)
-    y = tf.range(H)
-    x, y = tf.meshgrid(x, y)
-    indices = tf.stack([y, x], axis=-1)
-    # making patches, TensorShape([2, 17, 17, 786432])
-    img_patches = tf.image.extract_patches(
-        images=tf.expand_dims(img, axis=0),
-        sizes=SIZES, strides=STRIDES, rates=RATES, padding=PADDING)
-    ind_patches = tf.image.extract_patches(
-        images=tf.expand_dims(indices, axis=0), sizes=SIZES,
-        strides=STRIDES, rates=RATES, padding=PADDING)
-    # squeezing the shape (removing dimension of size 1)
-    img_patches = tf.squeeze(img_patches)
-    ind_patches = tf.squeeze(ind_patches)
-    # reshaping
-    img_patches = tf.reshape(
-        img_patches, [tile_PATCH_NUMBER, PATCH_SIZE, PATCH_SIZE, C])
-    ind_patches = tf.reshape(
-        ind_patches, [tile_PATCH_NUMBER, PATCH_SIZE, PATCH_SIZE, 2])
-    # Now predict
-    pred_patches = model.predict(img_patches, batch_size=BATCH_SIZE)
-    # stitch together the patch summing the overlapping patches probabilities
-    pred_tile = tf.scatter_nd(
-        indices=ind_patches, updates=pred_patches,
-        shape=(H, W, NUM_CLASSES))
-    return pred_tile
+def window2d(window_func, window_size, **kwargs):
+    window = np.matrix(window_func(M=window_size, sym=False, **kwargs))
+    return window.T.dot(window)
 
 
-def get_tile_tta_pred(img, model, NUM_CLASSES):
-     test time augmentation prediction 
-    # reading the tile content
-    img = tf.image.convert_image_dtype(img, tf.float32)
-    H, W, C = img.shape
-    pred_tile = tf.zeros(shape=(H, W, NUM_CLASSES))
-    for i in tqdm(tf.range(4)):
-        rot_img = tf.image.rot90(img, k=i)
-        pred_tmp = get_extract_pred_scatter(rot_img, model)
-        pred_tile += tf.image.rot90(pred_tmp, k=-i)
-    img = tf.image.flip_left_right(img)
-    for i in tqdm(tf.range(4)):
-        rot_img = tf.image.rot90(img, k=i)
-        pred_tmp = get_extract_pred_scatter(rot_img, model)
-        pred_tile += tf.image.flip_left_right(tf.image.rot90(pred_tmp, k=-i))
-    pred_tile    = tf.argmax(pred_tile, axis=-1, output_type=tf.int32)
-    pred_tile    = label2mask(pred_tile)
-    return pred_tile 
-"""
+def generate_corner_windows(window_func, window_size, **kwargs):
+    step = window_size >> 1
+    window = window2d(window_func, window_size, **kwargs)
+    window_u = np.vstack([np.tile(window[step:step+1, :], (step, 1)), window[step:, :]])
+    window_b = np.vstack([window[:step, :], np.tile(window[step:step+1, :], (step, 1))])
+    window_l = np.hstack([np.tile(window[:, step:step+1], (1, step)), window[:, step:]])
+    window_r = np.hstack([window[:, :step], np.tile(window[:, step:step+1], (1, step))])
+    window_ul = np.block([
+        [np.ones((step, step)), window_u[:step, step:]],
+        [window_l[step:, :step], window_l[step:, step:]]])
+    window_ur = np.block([
+        [window_u[:step, :step], np.ones((step, step))],
+        [window_r[step:, :step], window_r[step:, step:]]])
+    window_bl = np.block([
+        [window_l[:step, :step], window_l[:step, step:]],
+        [np.ones((step, step)), window_b[step:, step:]]])
+    window_br = np.block([
+        [window_r[:step, :step], window_r[:step, step:]],
+        [window_b[step:, :step], np.ones((step, step))]])
+    return np.array([
+        [window_ul, window_u, window_ur],
+        [window_l,  window,   window_r],
+        [window_bl, window_b, window_br],
+    ])
+
+
+def generate_patch_list(image_width, image_height, window_func, window_size, overlapping=False):
+    patch_list = []
+    if overlapping:
+        step = window_size >> 1
+        windows = generate_corner_windows(window_func, window_size)
+        max_height = int(image_height/step - 1)*step
+        max_width = int(image_width/step - 1)*step
+    else:
+        step = window_size
+        windows = np.ones((window_size, window_size))
+        max_height = int(image_height/step)*step
+        max_width = int(image_width/step)*step
+    for i in range(0, max_height, step):
+        for j in range(0, max_width, step):
+            if overlapping:
+                # Close to border and corner cases
+                # Default (1, 1) is regular center window
+                border_x, border_y = 1, 1
+                if i == 0:
+                    border_x = 0
+                if j == 0:
+                    border_y = 0
+                if i == max_height-step:
+                    border_x = 2
+                if j == max_width-step:
+                    border_y = 2
+                # Selecting the right window
+                current_window = windows[border_x, border_y]
+            else:
+                current_window = windows
+            # The patch is cropped when the patch size is not
+            # a multiple of the image size.
+            patch_height = window_size
+            if i+patch_height > image_height:
+                patch_height = image_height - i
+            patch_width = window_size
+            if j+patch_width > image_width:
+                patch_width = image_width - j
+            # Adding the patch
+            patch_list.append(
+                (j, i, patch_width, patch_height,
+                    current_window[:patch_height, :patch_width])
+            )
+    return patch_list
+
+def sliding_window_hann(
+            xraster, model, window_size, tile_size,
+            inference_overlap, inference_treshold, batch_size,
+            mean, std
+        ):
+
+    # open rasters and get both data and coordinates
+    rast_shape = xraster[:, :, 0].shape  # shape of the wider scene
+
+    # smooth window
+    window_func = w.hann
+    use_hanning = True
+
+    # print(rast_shape, wsy, wsx)
+    prediction = np.zeros(rast_shape)  # crop out the window
+    print(f'Prediction shape: {prediction.shape}')
+
+    patch_list = generate_patch_list(
+        rast_shape[0], rast_shape[1], window_func, tile_size, use_hanning)
+
+    for patch in patch_list:
+
+        patch_x, patch_y, patch_width, patch_height, window = patch
+        input_patch = xraster[patch_y:patch_y+patch_height, patch_x:patch_x+patch_width].data
+        window_pred = model.predict(input_patch)
+        prediction[patch_y:patch_y+patch_height, patch_x:patch_x+patch_width] += window_pred * window
+
+    if prediction.shape[-1] > 1:
+        prediction = np.argmax(prediction, axis=-1)
+    else:
+        prediction = np.squeeze(
+            np.where(
+                prediction > inference_treshold, 1, 0).astype(np.int16))
+    return prediction
+
+# second option, same hann window combined with mosaicing
+# overalapping big sliding windows, that get hann windows in their corners
