@@ -182,7 +182,8 @@ def sliding_window(
     rast_shape = xraster[:, :, 0].shape  # shape of the wider scene
 
     # in memory sliding window predictions
-    wsy, wsx = window_size, window_size
+    # wsy, wsx = window_size, window_size
+    wsy, wsx = rast_shape[0], rast_shape[1]
 
     # if the window size is bigger than the image, predict full image
     if wsy > rast_shape[0]:
