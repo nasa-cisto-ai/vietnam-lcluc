@@ -356,7 +356,7 @@ def sliding_window_hann(
         patch_x, patch_y, patch_width, patch_height, window = patch
         input_patch = np.expand_dims(xraster[patch_y:patch_y+patch_height, patch_x:patch_x+patch_width].data, 0)
         window_pred = model.predict(input_patch)
-        prediction[patch_y:patch_y+patch_height, patch_x:patch_x+patch_width] += window_pred * window
+        prediction[patch_y:patch_y+patch_height, patch_x:patch_x+patch_width] += window_pred * np.expand_dims(window)
 
     if prediction.shape[-1] > 1:
         prediction = np.argmax(prediction, axis=-1)
