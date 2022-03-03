@@ -67,7 +67,7 @@ def unet(
     c9 = Conv2D(maps[0], (3, 3), activation='relu', padding='same')(c9)
 
     actv = 'softmax'
-    if nclass == 2:
+    if nclass == 1:
         actv = 'sigmoid'
 
     c10 = Conv2D(nclass, (1, 1), activation=actv, kernel_regularizer=kr)(c9)
