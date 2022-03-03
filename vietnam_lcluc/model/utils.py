@@ -194,7 +194,7 @@ def sliding_window(
     # smooth window
     # this might be problematic since there might be issues on tiles smaller
     # than actual squares
-    spline = spline_window(wsy)
+    # spline = spline_window(wsy)
 
     # print(rast_shape, wsy, wsx)
     prediction = np.zeros(rast_shape)  # crop out the window
@@ -213,9 +213,10 @@ def sliding_window(
                 x0 = x1 - tile_size  # assign boundary to -tsize
 
             window = xraster[y0:y1, x0:x1, :].values  # get window
-            window_shape = window.shape
-            window_spline = np.squeeze(
-                spline[0:window_shape[0], 0:window_shape[1]])
+            # window_shape = window.shape
+
+            #window_spline = np.squeeze(
+            #    spline[0:window_shape[0], 0:window_shape[1]])
 
             if np.all(window == window[0, 0, 0]):
                 prediction[y0:y1, x0:x1] = window[:, :, 0]
@@ -227,6 +228,7 @@ def sliding_window(
                 window = from_array(
                     window, (tile_size, tile_size),
                     overlap_factor=inference_overlap, fill_mode='reflect')
+
                 # print("After from_array", window.shape)
 
                 window = window.apply(
@@ -249,3 +251,63 @@ def sliding_window(
                     #window = window * window_spline
                 prediction[y0:y1, x0:x1] = window
     return prediction
+
+"""
+def get_extract_pred_scatter(
+        img, model, PATCH_SIZE, PATCH_STRIDE, SIZES, STRIDES,
+        RATES, PADDING, BATCH_SIZE, NUM_CLASSES):
+
+    H, W, C = img.shape
+
+    # patch_number 
+    tile_PATCH_NUMBER = (
+        (H - PATCH_SIZE)//PATCH_STRIDE + 1) * \
+        ((W - PATCH_SIZE)//PATCH_STRIDE + 1)
+    # the indices trick to reconstruct the tile
+    x = tf.range(W)
+    y = tf.range(H)
+    x, y = tf.meshgrid(x, y)
+    indices = tf.stack([y, x], axis=-1)
+    # making patches, TensorShape([2, 17, 17, 786432])
+    img_patches = tf.image.extract_patches(
+        images=tf.expand_dims(img, axis=0),
+        sizes=SIZES, strides=STRIDES, rates=RATES, padding=PADDING)
+    ind_patches = tf.image.extract_patches(
+        images=tf.expand_dims(indices, axis=0), sizes=SIZES,
+        strides=STRIDES, rates=RATES, padding=PADDING)
+    # squeezing the shape (removing dimension of size 1)
+    img_patches = tf.squeeze(img_patches)
+    ind_patches = tf.squeeze(ind_patches)
+    # reshaping
+    img_patches = tf.reshape(
+        img_patches, [tile_PATCH_NUMBER, PATCH_SIZE, PATCH_SIZE, C])
+    ind_patches = tf.reshape(
+        ind_patches, [tile_PATCH_NUMBER, PATCH_SIZE, PATCH_SIZE, 2])
+    # Now predict
+    pred_patches = model.predict(img_patches, batch_size=BATCH_SIZE)
+    # stitch together the patch summing the overlapping patches probabilities
+    pred_tile = tf.scatter_nd(
+        indices=ind_patches, updates=pred_patches,
+        shape=(H, W, NUM_CLASSES))
+    return pred_tile
+
+
+def get_tile_tta_pred(img, model, NUM_CLASSES):
+    """ test time augmentation prediction """
+    # reading the tile content
+    img = tf.image.convert_image_dtype(img, tf.float32)
+    H, W, C = img.shape
+    pred_tile = tf.zeros(shape=(H, W, NUM_CLASSES))
+    for i in tqdm(tf.range(4)):
+        rot_img = tf.image.rot90(img, k=i)
+        pred_tmp = get_extract_pred_scatter(rot_img, model)
+        pred_tile += tf.image.rot90(pred_tmp, k=-i)
+    img = tf.image.flip_left_right(img)
+    for i in tqdm(tf.range(4)):
+        rot_img = tf.image.rot90(img, k=i)
+        pred_tmp = get_extract_pred_scatter(rot_img, model)
+        pred_tile += tf.image.flip_left_right(tf.image.rot90(pred_tmp, k=-i))
+    pred_tile    = tf.argmax(pred_tile, axis=-1, output_type=tf.int32)
+    pred_tile    = label2mask(pred_tile)
+    return pred_tile 
+"""
