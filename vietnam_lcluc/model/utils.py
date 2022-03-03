@@ -293,7 +293,7 @@ def get_extract_pred_scatter(
 
 
 def get_tile_tta_pred(img, model, NUM_CLASSES):
-    """ test time augmentation prediction """
+     test time augmentation prediction 
     # reading the tile content
     img = tf.image.convert_image_dtype(img, tf.float32)
     H, W, C = img.shape
