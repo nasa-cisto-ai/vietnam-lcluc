@@ -213,6 +213,7 @@ def sliding_window(
                 x0 = x1 - tile_size  # assign boundary to -tsize
 
             window = xraster[y0:y1, x0:x1, :].values  # get window
+            print(window.shape)
             # window_shape = window.shape
 
             #window_spline = np.squeeze(
