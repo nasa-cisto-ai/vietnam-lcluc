@@ -260,8 +260,14 @@ class CNNPipeline(object):
         # Get mean and std array
         mean, std = utils.get_mean_std_dataset(tf_dataset)
         logging.info(f'Mean: {mean}, Std: {std}')
-        np.save(os.path.join(self.conf.data_dir, 'mean.npy'), mean.numpy())
-        np.save(os.path.join(self.conf.data_dir, 'std.npy'), std.numpy())
+        np.save(
+            os.path.join(
+                self.conf.data_dir,
+                f'mean-{self.conf.experiment_name}.npy'), mean.numpy())
+        np.save(
+            os.path.join(
+                self.conf.data_dir,
+                f'std-{self.conf.experiment_name}.npy'), std.numpy())
         return
 
     # -------------------------------------------------------------------------
@@ -298,9 +304,13 @@ class CNNPipeline(object):
         # Init datasets
         if self.conf.standardize:
             self.conf.mean = np.load(
-                os.path.join(self.conf.data_dir, 'mean.npy')).tolist()
+                os.path.join(
+                    self.conf.data_dir,
+                    f'mean-{self.conf.experiment_name}.npy')).tolist()
             self.conf.std = np.load(
-                os.path.join(self.conf.data_dir, 'std.npy')).tolist()
+                os.path.join(
+                    self.conf.data_dir,
+                    f'std-{self.conf.experiment_name}.npy')).tolist()
 
         train_dataset = self.tf_dataset(
             train_x, train_y,
@@ -420,9 +430,13 @@ class CNNPipeline(object):
 
         if self.conf.standardize:
             self.conf.mean = np.load(
-                os.path.join(self.conf.data_dir, 'mean.npy')).tolist()
+                os.path.join(
+                    self.conf.data_dir,
+                    f'mean-{self.conf.experiment_name}.npy')).tolist()
             self.conf.std = np.load(
-                os.path.join(self.conf.data_dir, 'std.npy')).tolist()
+                os.path.join(
+                    self.conf.data_dir,
+                    f'std-{self.conf.experiment_name}.npy')).tolist()
 
         logging.info(f'Mean: {self.conf.mean}, Std: {self.conf.std}')
 
