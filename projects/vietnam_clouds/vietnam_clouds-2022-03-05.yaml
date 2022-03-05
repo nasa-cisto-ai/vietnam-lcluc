@@ -28,11 +28,11 @@ mean:
 std:
   - 1
 
-tile_size: 256
-include_classes: False
+tile_size: 512
+include_classes: True
 augment: True
 standardize: True
-batch_size: 128
+batch_size: 64
 n_classes: 1
 test_size: 0.20
 learning_rate: 0.0001
