@@ -402,17 +402,8 @@ def sliding_window_hann_slide(
 
     return prediction
 
-
-
-
-
-
-
-
-
-
+"""
 def predict_scene(self, scene: Scene, backend: Backend) -> Labels:
-    """Returns predictions for a single scene."""
     log.info('Making predictions for scene')
     raster_source = scene.raster_source
     label_store = scene.prediction_label_store
@@ -448,3 +439,4 @@ def predict_scene(self, scene: Scene, backend: Backend) -> Labels:
 
     return self.post_process_predictions(labels, scene)
 
+"""
