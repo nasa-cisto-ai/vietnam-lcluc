@@ -2,7 +2,7 @@ experiment_name: vietnam-clouds
 experiment_type: clouds
 
 data_dir: /lscratch/jacaraba/vietnam-lcluc/clouds-binary-mixed-std
-dataset_csv: /home/jacaraba/vietnam-lcluc/projects/vietnam_clouds/vietnam_clouds.csv
+dataset_csv: /home/jacaraba/vietnam-lcluc/projects/vietnam_clouds/vietnam_clouds-2022-03-05.csv
 
 seed: 42
 gpu_devices: 0,1,2,3
