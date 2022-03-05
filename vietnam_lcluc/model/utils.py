@@ -33,9 +33,10 @@ def gen_random_tiles(
         y = random.randint(0, image.shape[1] - tile_size)
 
         # first condition, time must have valid classes
+        # MIGHT NEED FIX LATER WITH CROP >=
         if label[x: (x + tile_size), y: (y + tile_size)].min() < 0 or \
                 label[x: (x + tile_size), y: (y + tile_size)].max() \
-                >= num_classes:
+                > num_classes:
             continue
 
         if image[x: (x + tile_size), y: (y + tile_size)].min() < -100:

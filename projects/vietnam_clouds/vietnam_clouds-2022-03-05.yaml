@@ -29,7 +29,7 @@ std:
   - 1
 
 tile_size: 512
-include_classes: True
+include_classes: False
 augment: True
 standardize: True
 batch_size: 64
