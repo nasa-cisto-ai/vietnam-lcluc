@@ -143,9 +143,15 @@ class CNNPipeline(object):
 
         # Standardize
         if self.conf.standardize:
-            for i in range(x.shape[-1]):  # for each channel in the image
-                x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
-                    (self.conf.std[i] + 1e-8)
+
+            if np.random.random_sample() > 0.75:
+                for i in range(x.shape[-1]):  # for each channel in the image
+                    x[:, :, i] = (x[:, :, i] - self.conf.mean[i]) / \
+                        (self.conf.std[i] + 1e-8)
+            else:
+                for i in range(x.shape[-1]):  # for each channel in the image
+                    x[:, :, i] = (x[:, :, i] - np.mean(x[:, :, i])) / \
+                        (np.std(x[:, :, i]) + 1e-8)
 
         # Augment
         if self.conf.augment:

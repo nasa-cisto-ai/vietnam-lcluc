@@ -36,3 +36,5 @@ def get_loss(loss: str) -> Any:
         return TverskyLoss()
     elif loss == 'categorical_crossentropy':
         return 'categorical_crossentropy'
+    elif loss == 'binary_crossentropy':
+        return 'binary_crossentropy'

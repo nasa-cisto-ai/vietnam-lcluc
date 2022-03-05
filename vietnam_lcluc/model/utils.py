@@ -183,8 +183,8 @@ def sliding_window(
     rast_shape = xraster[:, :, 0].shape  # shape of the wider scene
 
     # in memory sliding window predictions
-    # wsy, wsx = window_size, window_size
-    wsy, wsx = rast_shape[0], rast_shape[1]
+    wsy, wsx = window_size, window_size
+    # wsy, wsx = rast_shape[0], rast_shape[1]
 
     # if the window size is bigger than the image, predict full image
     if wsy > rast_shape[0]:
@@ -369,3 +369,82 @@ def sliding_window_hann(
 
 # second option, same hann window combined with mosaicing
 # overalapping big sliding windows, that get hann windows in their corners
+
+def sliding_window_hann_slide(
+            xraster, model, window_size, tile_size,
+            inference_overlap, inference_treshold, batch_size,
+            mean, std
+        ):
+
+    # open rasters and get both data and coordinates
+    rast_shape = xraster[:, :, 0].shape  # shape of the wider scene
+
+    # in memory sliding window predictions
+    wsy, wsx = window_size, window_size
+    # wsy, wsx = rast_shape[0], rast_shape[1]
+
+    # if the window size is bigger than the image, predict full image
+    if wsy > rast_shape[0]:
+        wsy = rast_shape[0]
+    if wsx > rast_shape[1]:
+        wsx = rast_shape[1]
+
+    # smooth window
+    # this might be problematic since there might be issues on tiles smaller
+    # than actual squares
+    # spline = spline_window(wsy)
+
+    # print(rast_shape, wsy, wsx)
+    prediction = np.zeros(rast_shape)  # crop out the window
+    print(f'wsize: {wsy}x{wsx}. Prediction shape: {prediction.shape}')
+
+    
+
+    return prediction
+
+
+
+
+
+
+
+
+
+
+def predict_scene(self, scene: Scene, backend: Backend) -> Labels:
+    """Returns predictions for a single scene."""
+    log.info('Making predictions for scene')
+    raster_source = scene.raster_source
+    label_store = scene.prediction_label_store
+    labels = label_store.empty_labels()
+
+    windows = self.get_predict_windows(raster_source.get_extent())
+
+    def predict_batch(chips, windows):
+        nonlocal labels
+        chips = np.array(chips)
+        batch_labels = backend.predict(scene, chips, windows)
+        batch_labels = self.post_process_batch(windows, chips,
+                                                batch_labels)
+        labels += batch_labels
+
+        print('.' * len(chips), end='', flush=True)
+
+    batch_chips, batch_windows = [], []
+    for window in windows:
+        chip = raster_source.get_chip(window)
+        batch_chips.append(chip)
+        batch_windows.append(window)
+
+        # Predict on batch
+        if len(batch_chips) >= self.config.predict_batch_sz:
+            predict_batch(batch_chips, batch_windows)
+            batch_chips, batch_windows = [], []
+    print()
+
+    # Predict on remaining batch
+    if len(batch_chips) > 0:
+        predict_batch(batch_chips, batch_windows)
+
+    return self.post_process_predictions(labels, scene)
+
