@@ -215,10 +215,10 @@ def sliding_window(
                 x0 = x1 - tile_size  # assign boundary to -tsize
 
             window = xraster[y0:y1, x0:x1, :].values  # get window
-            print(window.shape)
+            # print(window.shape)
             # window_shape = window.shape
 
-            #window_spline = np.squeeze(
+            # window_spline = np.squeeze(
             #    spline[0:window_shape[0], 0:window_shape[1]])
 
             if np.all(window == window[0, 0, 0]):
@@ -251,7 +251,7 @@ def sliding_window(
                         np.where(
                             window > inference_treshold, 1, 0).astype(np.int16)
                         )
-                    #window = window * window_spline
+                    # window = window * window_spline
                 prediction[y0:y1, x0:x1] = window
     return prediction
 
