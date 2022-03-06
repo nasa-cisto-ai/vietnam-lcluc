@@ -42,7 +42,7 @@ loss: binary_crossentropy
 
 window_size: 8192
 inference_overlap: 2
-inference_treshold: 0.30
+inference_treshold: 0.90
 
 # this model had include_classes set to true
 model_filename: /lscratch/jacaraba/vietnam-lcluc/clouds-binary-mixed-std/model/58-0.04.hdf5
