@@ -477,7 +477,7 @@ class CNNPipeline(object):
             # prediction = self._sliding_window(image, model)
             # prediction = utils.sliding_window(
             prediction = utils.sliding_window_all(
-                xraster=image,
+                xraster=image.values,
                 model=model,
                 window_size=self.conf.window_size,
                 tile_size=self.conf.tile_size,
