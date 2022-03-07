@@ -1,4 +1,5 @@
 import os
+import time
 import logging
 import omegaconf
 from glob import glob
@@ -443,6 +444,8 @@ class CNNPipeline(object):
         # iterate files, create lock file to avoid predicting the same file
         for filename in data_filenames:
 
+            start_time = time.time()
+
             # output filename to save prediction on
             output_filename = os.path.join(
                 self.conf.inference_save_dir,
@@ -512,6 +515,8 @@ class CNNPipeline(object):
 
             # delete lock file
             os.remove(lock_filename)
+
+            logging.info(f"{(time.time() - start_time)/60} min")
 
             # This is the case where the prediction was already saved
             # else:
