@@ -256,6 +256,29 @@ def sliding_window(
     return prediction
 
 
+def sliding_window_all(
+            xraster, model, window_size, tile_size,
+            inference_overlap, inference_treshold, batch_size,
+            mean, std
+        ):
+
+    prediction = from_array(
+        xraster, (tile_size, tile_size),
+        overlap_factor=inference_overlap, fill_mode='reflect')
+
+    prediction = prediction.apply(
+        model.predict, progress_bar=False,
+        batch_size=batch_size, mean=mean, std=std)
+
+    prediction = prediction.get_fusion()
+
+    prediction = np.squeeze(
+        np.where(
+            prediction > inference_treshold, 1, 0).astype(np.int16)
+        )
+    return prediction
+
+
 def window2d(window_func, window_size, **kwargs):
     window = np.matrix(window_func(M=window_size, sym=False, **kwargs))
     return window.T.dot(window)
