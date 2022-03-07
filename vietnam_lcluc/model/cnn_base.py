@@ -453,67 +453,67 @@ class CNNPipeline(object):
             lock_filename = f'{output_filename}.lock'
 
             # predict only if file does not exist and no lock file
-            if not os.path.isfile(output_filename) and \
-                    not os.path.isfile(lock_filename):
+            # if not os.path.isfile(output_filename) and \
+            #        not os.path.isfile(lock_filename):
 
-                logging.info(f'Starting to predict {filename}')
+            logging.info(f'Starting to predict {filename}')
 
-                # create lock file
-                open(lock_filename, 'w').close()
+            # create lock file
+            open(lock_filename, 'w').close()
 
-                # open filename
-                image = rxr.open_rasterio(filename, chunks=CHUNKS)
-                image = image.transpose("y", "x", "band")
-                logging.info(f'Prediction shape: {image.shape}')
+            # open filename
+            image = rxr.open_rasterio(filename, chunks=CHUNKS)
+            image = image.transpose("y", "x", "band")
+            logging.info(f'Prediction shape: {image.shape}')
 
-                image = utils.modify_bands(
-                    xraster=image, input_bands=self.conf.input_bands,
-                    output_bands=self.conf.output_bands)
-                logging.info(f'Prediction shape after modf: {image.shape}')
+            image = utils.modify_bands(
+                xraster=image, input_bands=self.conf.input_bands,
+                output_bands=self.conf.output_bands)
+            logging.info(f'Prediction shape after modf: {image.shape}')
 
-                # prediction = self._sliding_window(image, model)
-                # prediction = utils.sliding_window(
-                prediction = utils.sliding_window(
-                    xraster=image,
-                    model=model,
-                    window_size=self.conf.window_size,
-                    tile_size=self.conf.tile_size,
-                    inference_overlap=self.conf.inference_overlap,
-                    inference_treshold=self.conf.inference_treshold,
-                    batch_size=self.conf.batch_size,
-                    mean=self.conf.mean,
-                    std=self.conf.std
-                )
+            # prediction = self._sliding_window(image, model)
+            # prediction = utils.sliding_window(
+            prediction = utils.sliding_window(
+                xraster=image,
+                model=model,
+                window_size=self.conf.window_size,
+                tile_size=self.conf.tile_size,
+                inference_overlap=self.conf.inference_overlap,
+                inference_treshold=self.conf.inference_treshold,
+                batch_size=self.conf.batch_size,
+                mean=self.conf.mean,
+                std=self.conf.std
+            )
 
-                image = image.drop(
-                    dim="band",
-                    labels=image.coords["band"].values[1:],
-                    drop=True
-                )
+            image = image.drop(
+                dim="band",
+                labels=image.coords["band"].values[1:],
+                drop=True
+            )
 
-                prediction = xr.DataArray(
-                    np.expand_dims(prediction, axis=-1),
-                    name=self.conf.experiment_type,
-                    coords=image.coords,
-                    dims=image.dims,
-                    attrs=image.attrs
-                )
+            prediction = xr.DataArray(
+                np.expand_dims(prediction, axis=-1),
+                name=self.conf.experiment_type,
+                coords=image.coords,
+                dims=image.dims,
+                attrs=image.attrs
+            )
 
-                prediction.attrs['long_name'] = (self.conf.experiment_type)
-                prediction = prediction.transpose("band", "y", "x")
+            prediction.attrs['long_name'] = (self.conf.experiment_type)
+            prediction = prediction.transpose("band", "y", "x")
 
-                nodata = prediction.rio.nodata
-                prediction = prediction.where(image != nodata)
-                prediction.rio.write_nodata(nodata, encoded=True, inplace=True)
-                prediction.rio.to_raster(
-                    output_filename, BIGTIFF="IF_SAFER", compress='LZW')
+            nodata = prediction.rio.nodata
+            prediction = prediction.where(image != nodata)
+            prediction.rio.write_nodata(nodata, encoded=True, inplace=True)
+            prediction.rio.to_raster(
+                output_filename, BIGTIFF="IF_SAFER", compress='LZW')
 
-                del prediction
+            del prediction
 
-                # delete lock file
-                os.remove(lock_filename)
+            # delete lock file
+            os.remove(lock_filename)
 
             # This is the case where the prediction was already saved
-            else:
-                logging.info(f'{output_filename} already predicted.')
+            # else:
+            #    logging.info(f'{output_filename} already predicted.')
         return

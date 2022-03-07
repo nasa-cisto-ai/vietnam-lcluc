@@ -40,7 +40,8 @@ max_epochs: 6000
 #loss: tversky
 loss: binary_crossentropy
 
-window_size: 8192
+# window_size: 8192
+window_size: 1024
 inference_overlap: 2
 inference_treshold: 0.90
 
