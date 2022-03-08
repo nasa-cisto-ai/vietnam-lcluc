@@ -465,7 +465,8 @@ class CNNPipeline(object):
             open(lock_filename, 'w').close()
 
             # open filename
-            image = rxr.open_rasterio(filename, chunks=CHUNKS)
+            # image = rxr.open_rasterio(filename, chunks=CHUNKS)
+            image = rxr.open_rasterio(filename)
             image = image.transpose("y", "x", "band")
             logging.info(f'Prediction shape: {image.shape}')
 
@@ -476,8 +477,8 @@ class CNNPipeline(object):
 
             # prediction = self._sliding_window(image, model)
             # prediction = utils.sliding_window(
-            prediction = utils.sliding_window_all(
-                xraster=image.values,
+            prediction = utils.sliding_window(
+                xraster=image.data,
                 model=model,
                 window_size=self.conf.window_size,
                 tile_size=self.conf.tile_size,
