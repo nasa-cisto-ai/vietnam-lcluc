@@ -1,0 +1,52 @@
+experiment_name: vietnam-senegal-clouds
+experiment_type: clouds
+
+data_dir: /lscratch/jacaraba/vietnam-lcluc/clouds-binary-mixed-std-include-senegal
+dataset_csv: /att/nobackup/jacaraba/development/vietnam-lcluc/projects/senegal_clouds/vietnam_senegal_clouds.csv
+
+seed: 42
+gpu_devices: 0,1,2,3
+mixed_precision: False
+xla: False
+
+input_bands:
+  - Blue
+  - Green
+  - Red
+  - NIR1
+  - HOM1
+  - HOM2
+
+output_bands:
+  - Blue
+  - Green
+  - Red
+  - NIR1
+
+mean:
+  - 1
+std:
+  - 1
+
+tile_size: 256
+include_classes: True
+augment: True
+standardize: True
+batch_size: 64
+n_classes: 1
+test_size: 0.20
+learning_rate: 0.0001
+max_epochs: 6000
+#loss: tversky
+loss: binary_crossentropy
+
+# window_size: 8192
+window_size: 1024
+inference_overlap: 2
+inference_treshold: 0.90
+
+# this model had include_classes set to true
+model_filename: /lscratch/jacaraba/vietnam-lcluc/clouds-binary-mixed-std/model/58-0.04.hdf5
+inference_regex: '/att/gpfsfs/briskfs01/ppl/mwooten3/Vietnam_LCLUC/TOA/M1BS/pansharpen_TamNongClip/WV02_20130125_M1BS_103001001DD53500-toa_pansharpen_clip.tif'
+#inference_regex: '/adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/tree_model_data/data/Keelin02_20130125_data.tif'
+inference_save_dir: /adapt/nobackup/projects/ilab/projects/Vietnam/Jordan/VIETNAM_PRIORITY/clouds-binary-mixed-std
