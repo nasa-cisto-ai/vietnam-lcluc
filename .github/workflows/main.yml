@@ -1,11 +1,11 @@
 name: CI to Docker Hub 
 
-# on: push
+on: push
 
-on:
-  push:
-    tags:
-      - "*.*"
+#on:
+#  push:
+#    tags:
+#      - "*.*"
 
 jobs:
 
@@ -38,10 +38,10 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./ 
-          file: ./requirements/container/DockerfileTF
+          file: ./requirements/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: nasanccs/senegal-lcluc:latest
+          tags: nasanccs/nccs-lcluc:tensorflow
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
       -
