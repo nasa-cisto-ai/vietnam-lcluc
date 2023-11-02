@@ -1,6 +1,6 @@
 # Vietnam LCLUC
 
-Vietnam LCLUC AI/ML Repository
+Vietnam LCLUC Deep Learning Repository
 
 ## Business Case
 
@@ -25,32 +25,36 @@ singularity shell --nv -B /att,/lscratch,/adapt/nobackup/projects/ilab /lscratch
 
 ## Final LCLUC Product
 
-cloud mask
-tree/shadow
-crop/field
+Data products:
 
-0: Growing Rice/Row Crop 
-1: Sparse/Barren 
-2: Intercrop 
-3: Burned 
-4: Water 
-5: Roads/Urban/Other (Built up) 
-6: Other veg (include reeds/marshy areas)
+- cloud mask
+- tree/shadow
+- crop/field
 
-Trees and buildings
+Individual land use classes:
 
-0: trees
-1: water
-2: build
-3: shadow
-4: other 
-5: tree
+- 0: Growing Rice/Row Crop 
+- 1: Sparse/Barren 
+- 2: Intercrop 
+- 3: Burned 
+- 4: Water 
+- 5: Roads/Urban/Other (Built up) 
+- 6: Other veg (include reeds/marshy areas)
 
-We care about
+Trees and buildings:
 
-From crop: 0-growing active, 4-water
-From trees: 0-tree, 3-shadow, 1-water
-From clouds: 1-cloud
+- 0: trees
+- 1: water
+- 2: build
+- 3: shadow
+- 4: other 
+- 5: tree
+
+At the end, we care about these classes:
+
+- From crop: 0-growing active, 4-water
+- From trees: 0-tree, 3-shadow, 1-water
+- From clouds: 1-cloud
 
 ## References
 
